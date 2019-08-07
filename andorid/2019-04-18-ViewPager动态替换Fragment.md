@@ -4,7 +4,7 @@ title:      ViewPager动态替换Fragment
 subtitle:   ViewPager动态替换Fragment 
 date:       2019-4-18
 author:     小卷子
-header-img: 这篇文章标题背景图片
+header-img: img/tag-bg.jpg
 catalog: true
 tags:
     - 标签

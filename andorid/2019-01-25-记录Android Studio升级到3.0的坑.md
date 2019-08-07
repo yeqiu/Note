@@ -4,7 +4,7 @@ title:      记录Android Studio升级到3.0的坑
 subtitle:   记录Android Studio升级到3.0的坑 
 date:       2019-01-25
 author:     小卷子
-header-img: 这篇文章标题背景图片
+header-img: img/tag-bg.jpg
 catalog: true
 tags:
     - 标签
@@ -17,8 +17,12 @@ tags:
 
 日志如下：
 
+~~~java
 AGPBI: {"kind":"error","text":"error: style attribute \u0027@android:attr/windowEnterAnimation\u0027 not found.","sources":[{"file":"/Users/yeqiu/WorkSpace/AndroidProject/yeqiu/demo/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values/values.xml","position":{"startLine":3548}}],"original":"","tool":"AAPT"}
 AGPBI: {"kind":"error","text":"error: style attribute \u0027@android:attr/windowExitAnimation\u0027 not found.","sources":[{"file":"/Users/yeqiu/WorkSpace/AndroidProject/yeqiu/demo/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values/values.xml","position":{"startLine":3550}}],"original":"","tool":"AAPT"}
+~~~
+
+
 
 
 

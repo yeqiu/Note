@@ -1,10 +1,10 @@
 ---
 layout:     post  
 title:      RecyclerView根据条目设置高度 
-subtitle:   副标题
+subtitle:   RecyclerView根据条目设置高度 
 date:       2019-07-18
-author:     作者
-header-img: 这篇文章标题背景图片
+author:     小卷子
+header-img: img/tag-bg.jpg
 catalog: true
 tags:
     - 标签

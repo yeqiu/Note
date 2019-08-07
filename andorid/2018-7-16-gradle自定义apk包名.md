@@ -4,7 +4,7 @@ title:      gradle自定义apk包名
 subtitle:   gradle自定义apk包名
 date:       2018-7-16
 author:     小卷子
-header-img: 这篇文章标题背景图片
+header-img: img/tag-bg.jpg
 catalog: true
 tags:
     - 标签

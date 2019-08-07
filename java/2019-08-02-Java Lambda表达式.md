@@ -4,7 +4,7 @@ title:      Java Lambda表达式
 subtitle:   Lambda表达式
 date:       2019-08-02
 author:     小卷子
-header-img: 这篇文章标题背景图片
+header-img: img/tag-bg.jpg
 catalog: true
 tags:
     - 标签
