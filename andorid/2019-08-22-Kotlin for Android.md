@@ -42,6 +42,10 @@ new Intent(context,MainActivity.class);需要的参数是1.上下文 2.class文�
 
 
 
+关于内部类中使用MainActivity.this改成这种方式`this@MainActivity`
+
+
+
 # findViewById
 
 `findViewById`这玩意现在可以直接省略。
@@ -51,8 +55,6 @@ studio 3.0以上会自动添加相关的依赖，开启自动导包后直接在�
 原理：
 
 [Kotlin 不再使用 findViewById 的原理](https://blog.csdn.net/hust_twj/article/details/80290362)
-
-
 
 
 
@@ -69,9 +71,57 @@ studio 3.0以上会自动添加相关的依赖，开启自动导包后直接在�
 
 
 
-# 标题
+# Kotlin 回调
 
-​       
+   先看一段java式回调
+
+~~~java
+interface CallBackInJava {
+
+    fun onSucceed(data: String)
+}
+
+class TestJava {
+
+    fun getData(callBack: CallBackInJava) {
+        callBack.onSucceed("TestJava")
+    }
+
+}
+
+fun main() {
+  
+    TestJava().getData(object : CallBackInJava {
+        override fun onSucceed(data: String) {
+            println(data)
+        }
+    })   
+}
+~~~
+
+先定义接口，创建接受接口的方法，方法内回调数据。调用时直接传入接口实现类即可。这种语法完全没有问题。
+
+kotlin中有更简便的写法
+
+~~~java
+class TestKotlin{
+    
+    fun getData(listener: (String) -> Unit){
+        listener.invoke("TestKotlin")
+    }
+}
+
+fun main() {
+  
+    TestKotlin().getData {
+        println(it)
+    }
+}
+~~~
+
+不需要在定义接口，原先接受接口的方法参数修改成一表达式。调用时候可以直接使用it （it即是回调回来的String）
+
+
 
 # 标题
 
