@@ -99,7 +99,7 @@ fun main() {
 }
 ~~~
 
-先定义接口，创建接受接口的方法，方法内回调数据。调用时直接传入接口实现类即可。这种写法完全没有问题。
+先定义接口，创建设置接口的方法，接口回调数据。调用时直接传入接口实现类即可。这种写法完全没有问题。
 
 kotlin中有更简便的写法
 
@@ -123,9 +123,23 @@ fun main() {
 
 
 
-# 标题
+# 添加kotlin文件夹
 
-​       
+1.在 src/main 下新建 kotlin文件夹
+
+2.项目build.gradle添加
+
+~~~java
+android {
+		......
+		sourceSets { main.java.srcDirs += 'src/main/kotlin'}
+}
+
+~~~
+
+如无java代码可直接删除java文件夹
+
+
 
 # 标题
 
