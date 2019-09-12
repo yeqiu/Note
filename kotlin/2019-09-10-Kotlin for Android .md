@@ -18,59 +18,7 @@ tags:
 
 ## 前言
 
-很早之前Google宣布kotlin作为Android的官方语言，其实我一直是拒绝的。最近有时间在看kotlin，顺便站在Andorid工程师的角度记录一下kotlin跟java不同的地方
-
-
-
-## 变量和函数
-
-
-
-## kotlin里不java的写法
-
-
-
-## Kotlin 里那些更好用的
-
-
-
-## 泛型
-
-
-
-## 协程
-
-
-
-## 标题
-
-
-
-## 标题
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+最近看了kotlin，顺便再做一些kotlin的练习。然鹅练习过程遇到好多问题。
 
 
 
@@ -94,7 +42,7 @@ tags:
 
 new Intent(context,MainActivity.class);需要的参数是1.上下文 2.class文件
 
-`MainActivity::class`得到的是一个KClass（kotlin的class文件），需要转转成javaClass
+`MainActivity::class`得到的是一个KClass（kotlin的class文件），需要转成javaClass
 
 可以写成下面这样
 
@@ -124,7 +72,7 @@ studio 3.0以上会自动添加相关的依赖，开启自动导包后直接在�
 
 ### 关于set和get
 
-  可以直接使用属性，无需再调用set和get方法
+  可以直接使用属性，无需再调用set和get方法。其实内部还是会调用set get方法
 
 ```java
         //setText
@@ -137,7 +85,7 @@ studio 3.0以上会自动添加相关的依赖，开启自动导包后直接在�
 
 ### Kotlin 回调
 
-   先看一段java式回调
+   先看一段回调
 
 ```java
 interface CallBackInJava {
@@ -163,9 +111,11 @@ fun main() {
 }
 ```
 
-先定义接口，创建设置接口的方法，接口回调数据。调用时直接传入接口实现类即可。这种写法完全没有问题。
+先定义接口，创建设置接口的方法，接口回调数据。调用时直接传入接口实现类即可。
 
-kotlin中有更简便的写法
+以上这种很java式的写法也完全没有问题。
+
+但kotlin中有更简便的写法
 
 ```java
 class TestKotlin{
@@ -202,3 +152,22 @@ android {
 ```
 
 如无java代码可直接删除java文件夹
+
+
+
+## 一些其他的问题
+
+### 以下的代码代表什么
+
+```kotlin
+activity as? NewActivity
+activity as NewActivity?
+activity as? NewActivity?
+```
+
+其实关键在于理解可空类型和不可空类型。
+对于as和as?来说，as是在强转失败时会抛出异常，但是as?不会。
+有个细节在于如果activity是null的时候，用as去强转，肯定会抛出异常，但是用as?则不会。
+1.activity as? NewActivity 这种情况，不会抛出异常。虽然你as?后面期望转换为NewActivity类型(不可空类型)，但是要注意的是由于是as?，所以转换的结果是可空的，必须用NewActivity?类型变量去接收。这种情况比较特殊，一般用在Java调用kotlin中的一个方法，虽然你在kotlin中声明接收一个非空参数，但是java可能给你传入个null，你使用as?转换会比较安全。
+2.activity as NewActivity? 这种情况，activity为null时，强转失败，会抛出异常。如果顺利强转，由于你as后面的类型是可空的，所以转换的结果必须用NewActivity?类型变量去接收
+3.activity as? NewActivity? 这种情况activity为null时也不会抛出异常，无论是因为强转失败还是由于as?的类型声明，转换的结果都必须用NewActivity?类型变量去接收
