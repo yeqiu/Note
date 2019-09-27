@@ -1,0 +1,823 @@
+
+
+
+
+
+
+[TOC]
+
+## 配置
+
+LitePal的地址 **https://github.com/LitePalFramework/LitePal** 
+
+**添加依赖**
+
+~~~java
+implementation 'org.litepal.android:kotlin:3.0.0'
+~~~
+
+
+
+**配置litepal.xml**
+
+在项目的assets目录下面新建一个litepal.xml文件，并将以下代码拷贝进去
+
+~~~xml
+<?xml version="1.0" encoding="utf-8"?>
+<litepal>
+    <dbname value="test" />
+
+    <version value="1" />
+
+    <list>
+        
+    </list>
+    
+</litepal>
+~~~
+
+
+
+**初始化**
+
+~~~java
+LitePal.initialize(context)
+~~~
+
+
+
+## 创建表
+
+**新建模型**
+
+其实就是一个普通的bean
+
+~~~kotlin
+class News : LitePalSupport() {
+    val id: Int = 0
+    lateinit var title: String
+    lateinit var content: String
+    var commentCount: Int = 0
+}
+~~~
+
+继承`LitePalSupport`让这个模型具备操作数据的函数
+
+
+
+**导入到配置**
+
+编辑assets目录下的litepal.xml文件，在<list>标签中加入News模型类的声明：
+
+~~~xml
+<?xml version="1.0" encoding="utf-8"?>
+<litepal>
+    <dbname value="test" />
+
+    <version value="1" />
+
+    <list>
+        <mapping class="com.yeqiu.litepaltest.model.News"/>
+    </list>
+
+</litepal>
+~~~
+
+注意要使用全类名
+
+现在只要对数据库有任何的操作，news表就会被自动创建出来。
+
+~~~
+LitePal.getDatabase()
+~~~
+
+
+
+## 升级表
+
+直接在刚才的模型中修改字段，然后将数据的版本+1
+
+
+
+## 建立表关联
+
+关联关系的基本知识
+
+[郭霖的博客](https://blog.csdn.net/guolin_blog/article/details/39207945)
+
+**一对一关联的实现方式是用外键，多对一关联的实现方式也是用外键，多对多关联的实现方式是用中间表**
+
+LitePal建表时不需要关心外键，中间表等细节，只需要在对象中声明他们之间的引用关系，LitePal就会自动在数据库表之间建立好相应的关联关系
+
+在创建三个模型，模拟关联关系
+
+~~~kotlin
+class Introduction : LitePalSupport() {
+
+    val id: Int = 0
+}
+~~~
+
+~~~kotlin
+class Comment : LitePalSupport() {
+    val id: Int = 0
+}
+~~~
+
+~~~kotlin
+class Category : LitePalSupport() {
+    val id: Int = 0
+}
+~~~
+
+
+
+###一对一
+
+
+
+新闻会有介绍，一个介绍对应一个新闻。他们之间就是一对一的关系
+
+可以在Introduction表中添加一个news_id字段，这是一个外键列，存放具体的新闻id。这样一条introduction就能对应一条news，也就实现一对一的关系了。一对一的关系并没有强制要求外键必须加在哪一张表上，你可以在introduction表中加一个news_id作为外键，也可以在news表中加一个introduction_id作为外键，不管使用哪一种，都可以表示出它们是一对一的关联关系
+
+只需要在News类中持有一个Introduction类的引用，或者在Introduction类中也持有一个News类的引用，这样它们之间自然就是一对一的关系了
+
+~~~kotlin
+class News : LitePalSupport() {
+    val id: Int = 0
+    lateinit var title: String
+    lateinit var content: String
+    var commentCount: Int = 0
+    lateinit var introduction: Introduction
+}
+~~~
+
+
+
+
+
+### 一对多
+
+一条新闻可以有很多条评论，但是一条评论只能是属于一条新闻的。它们两个之间就是典型的多对一关系
+
+一对多的关系可以使用集合类来体现。数据库表一对多还是通过外键来建立。只不过一对一的时候外键加在哪一张表上都可以，但多对一的时候关键必须要加在多方的表中
+
+~~~kotlin
+class News : LitePalSupport() {
+    val id: Int = 0
+    lateinit var title: String
+    lateinit var content: String
+    var commentCount: Int = 0
+    lateinit var introduction: Introduction
+    lateinit var comments: List<Comment>
+}
+~~~
+
+~~~kotlin
+class Comment : LitePalSupport() {
+    val id: Int = 0
+    lateinit var commentDesc: String
+    lateinit var news: News
+}
+~~~
+
+Comment和News是多对一的关系，因此News中应该包含多个Comment，而Comment中应该只有一个News
+
+先使用一个泛型为Comment的List集合来表示News中包含多个Comment，然后修改Comment类的代码，如下所示：在Comment类中声明了一个News的实例，这样就清楚地表示出了News中可以包含多个Comment，而Comment中只能有一个News，也就是多对一的关系了。
+
+
+
+### 多对多
+
+新闻可以按照种类分类，每个种类会有许多条新闻，一条新闻也可以属于多个种类。新闻和种类就是一种多对多的关系。多对多的关系需要另外在创建一个表存放新闻和种类之间的关系。
+
+~~~kotlin
+class News : LitePalSupport() {
+    val id: Int = 0
+    lateinit var title: String
+    lateinit var content: String
+    var commentCount: Int = 0
+    lateinit var introduction: Introduction
+    lateinit var comments: List<Comment>
+    lateinit var categorys: List<Category>
+}
+~~~
+
+~~~kotlin
+class Category : LitePalSupport() {
+    val id: Int = 0
+    lateinit var name: String
+    lateinit var newList: List<News>
+}
+~~~
+
+双方都持有对方的引用
+
+
+
+## 储存
+
+直接创建一个模型对象，调用save函数即可
+
+~~~kotlin
+    private fun add() {
+        val news1 = News()
+        news1.title = "test标题"
+        news1.content = "test内容"
+        news1.commentCount = 0
+      	val save = news1.save()
+        if (save) {
+            log("保存成功")
+        } else {
+            log("保存失败")
+        }
+    }
+~~~
+
+
+
+对于有表关联关系的也是直接使用模型的save函数
+
+
+
+~~~kotlin
+   private fun add() {
+        //先保存评论数据
+        val comment1 = Comment()
+        comment1.commentDesc = "新闻评论1"
+        comment1.save()
+        val comment2 = Comment()
+        comment2.commentDesc = "新闻评论2"
+        comment2.save()
+        //创建新闻数据并添加评论
+        val news = News()
+        news.title = "新闻标题"
+        news.content = "新闻内容"
+        news.commentCount = 10
+        var commentList: List<Comment> = mutableListOf(comment1, comment2)
+        news.comments = commentList
+        news.commentCount = commentList.size
+        news.save()
+    }
+~~~
+
+以上代码中comment表中会储存news数据的id
+
+
+
+news表中的数据
+
+![news表数据](https://tva1.sinaimg.cn/large/006y8mN6ly1g7cw3v4xp4j30lj07ldfr.jpg)
+
+comment表中的数据
+
+![image-20190926141332431](/Users/yeqiu/Library/Application Support/typora-user-images/image-20190926141332431.png)
+
+**批量存储集合**
+
+对于储存集合，通过遍历循环调用save函数就可以做到储存，但是效率低下。LitePal提供了一个saveAll()方法，专门用于存储集合数据的
+
+~~~kotlin
+ LitePal.saveAll(commentList)
+~~~
+
+
+
+## 查询
+
+**通过id查询**
+
+~~~kotlin
+        val news = LitePal.find<News>(15)
+        news?.let {
+            log(news.title)
+        }
+~~~
+
+注意这里查询的对象可能会是个null
+
+
+
+其他的一些API
+
+~~~kotlin
+        //查找表里第一个
+        val first = LitePal.findFirst<News>()
+        //查找表里最后一个
+        val last = LitePal.findLast<News>()
+        //通过id查询多条
+        val newsList = LitePal.findAll<News>(1, 2, 3)
+        //查询全部
+        val allNewsList = LitePal.findAll<News>()
+~~~
+
+
+
+**连缀查询**
+
+~~~kotlin
+ 				//条件查询 查找评论数大于3
+        val find = LitePal.where("commentCount>?", "3").find<News>()
+~~~
+
+使用where函数指定查询条件，find函数的泛型指定查询的表
+
+~~~kotlin
+        val find = LitePal.select("title", "content")
+            .where("commentCount>?", "3")
+            .find<News>()
+~~~
+
+这里添加了select函数，指定查询的字段。这里只需查询title和content。那得到的List<News> 中的commentCount的值就始终是默认值
+
+排序
+
+~~~kotlin
+        val find = LitePal.select("title", "content")
+            .where("commentCount>?", "3")
+            .order("id desc")
+            .find<News>()
+~~~
+
+order函数中接收一个字符串参数，用于指定查询出的结果按照哪一列进行排序，asc表示正序排序，desc表示倒序排序
+
+指定查询数量
+
+~~~kotlin
+        val find = LitePal.select("title", "content")
+            .where("commentCount>?", "0")
+            .order("id desc")
+            .limit(2)
+            .find<News>()
+~~~
+
+limit函数指定查询数据的个数
+
+偏移量
+
+~~~kotlin
+        val find = LitePal.select("title", "content")
+            .where("commentCount>?", "0")
+            .order("id desc")
+            .limit(2)
+            .offset(2)
+            .find<News>()
+~~~
+
+offset函数指定忽略前面的个数，这个主要多是用在做分页。
+
+
+
+**激进查询**
+
+以上的查询都只是查询本表的数据，无法获得关联表的数据。以上的函数都有重载带有isEager参数的函数。设置成true就表示激进查询，这样就会把关联表中的数据一起查询出来了
+
+~~~kotlin
+        val find1 = LitePal.find<News>(1, true)
+        //获取关联的评论列表
+        val comments = find1.comments
+~~~
+
+这种关联查询会拖慢查询的速度，推荐使用懒查询。可以重写模型的get函数,在get函数中在加入查询的代码
+
+
+
+**原生查询**
+
+~~~kotlin
+ val cursor: Cursor = LitePal.findBySQL("select * from news where commentcount>?", "0")
+~~~
+
+findBySQL函数可以直接原生的SQL语句查询
+
+
+
+## 更新
+
+**通过id更新**
+
+```kotlin
+    private fun update(){
+        val news = News("新的标题", "新的内容", 1000)
+        news.update(2)
+    }
+```
+
+**通过条件更新**
+
+~~~kotlin
+        //将所有评论数大于0的标题改成 标题
+        val news = News()
+        news.title = "标题"
+        news.updateAll("commentCount>?","0")
+
+
+~~~
+
+多个条件通过and连接
+
+~~~kotlin
+News updateNews = new News();
+updateNews.setTitle("今日iPhone6发布");
+updateNews.updateAll("title = ? and commentcount > ?", "今日iPhone6发布", "0");
+~~~
+
+
+
+## 删除
+
+
+
+**通过id删除**
+
+```kotlin
+val delete = LitePal.delete<News>(1)
+```
+
+这不仅仅会将news表中id为1的记录删除，同时还会将其它表中以news id为1的这条记录作为外键的数据一起删除掉，因为外键既然不存在了，那么这么数据也就没有保留的意义了。
+
+
+
+**通过条件删除**
+
+~~~ko
+//删除评论小5的新闻
+LitePal.deleteAll<News>("commentCount<?","5")
+~~~
+
+
+
+**其他**
+
+如果模型对象已经经过持久化，已经储存过或者是从数据库里查询出来的。可以直接调用delete函数
+
+```kotlin
+news.delete()
+```
+
+可以通过isSaved函数判断是否经过持久化
+
+
+
+
+
+
+
+## 聚合函数
+
+聚合查询就是讲查询的结果进行合并和统计。
+
+LitePal中提供了count()、sum()、average()、max()和min()这五种聚合函数
+
+**count()**
+
+ount()方法主要是用于统计行数的
+
+~~~kotlin
+val count = LitePal.count<News>()
+~~~
+
+查询表中数据的总数
+
+
+
+**sum()**
+
+sum函数用于对结果进行求合的，比如说我们想要统计news表中评论的总数量，就可以这样写：
+
+~~~kotlin
+val sum = LitePal.sum<News, Int>("commentCount")
+~~~
+
+参数表示对那一列的数据进行求和，两个泛型 第一个是查询那个表，第二个是返回的结果类型
+
+需要注意的是，sum()方法只能对具有运算能力的列进行求合，比如说整型列或者浮点型列，如果传入一个字符串类型的列去求合，这时只会返回一个0作为结果。
+
+
+
+**average()**
+
+average()方法主要是用于统计平均数的，比如说我们想要统计news表中平均每条新闻有多少评论，就可以这样写：
+
+```kotlin
+val average: Double = LitePal.average<News>("commentCount")
+```
+
+参数表示对那一列数据求平均，注意这里返回的结果是**Double**类型的
+
+同样地，average()方法也只能对具有运算能力的列进行求平均值，如果你传入了一个字符串类型的列，只会返回一个0作为结果。
+
+
+
+**max()**
+
+max()方法主要用于求出某个列中最大的数值，比如我们想要知道news表中所有新闻里面最高的评论数是多少，就可以这样写：
+
+~~~kotlin
+ val max: Int = LitePal.max<News, Int>("commentCount")
+~~~
+
+泛型的第二个参数是查询类型的类型泛型。这里是commentCount的泛型。
+
+
+
+**min()**
+
+min函数求最小值
+
+~~~kotlin
+val min: Int = LitePal.min<News, Int>("commentCount")
+~~~
+
+
+
+
+
+所有的聚合函数都是支持连缀的，可以在统计的时候加入条件语句。
+
+```kotlin
+val count = LitePal.where("commentCount = ?","1").count<News>()
+```
+
+查询news表里评论1的总条数
+
+
+
+
+
+## 各种关联表储存Demo
+
+### 一对一
+
+创建两个模型 
+
+~~~kotlin
+class News : LitePalSupport() {
+
+    var id: Long = 0
+    var title: String? = null
+    var introduction: Introduction? = null
+
+}
+~~~
+
+~~~kotlin
+class Introduction : LitePalSupport() {
+
+    var id: Long = 0
+    var introduction: String? = null
+    var news: News? = null
+
+}
+~~~
+
+两个模型中都各自持有对方的对象引用，形成关联关系
+
+~~~kotlin
+    /**
+     * 新闻对应介绍，一个介绍对应一条新闻
+     *  一对一
+     *  */
+    private fun test1() {
+        
+        val news = News()
+        news.title = "一对一测试，新闻"
+        news.save()
+
+        val introduction = Introduction()
+        introduction.introduction = "一对一测试，介绍"
+        introduction.news = news
+        introduction.save()
+
+        news.introduction = introduction
+        news.update(news.id)
+
+    }
+~~~
+
+注意 这里先创建News然后保存，然后创建Introduction在保存，之后在更新News里的introduction。然后更新News在表里的数据
+
+数据库的数据如下
+
+news表：
+
+![](https://tva1.sinaimg.cn/large/006y8mN6ly1g7dv4fleyaj310y0dgaa9.jpg)
+
+introduction：表
+
+![](https://tva1.sinaimg.cn/large/006y8mN6ly1g7dv50dntyj30t50c90st.jpg)
+
+
+
+### 一对多
+
+一对多使用对象引用加集合方式
+
+一条评论对应一条新闻，一条新闻中有多条评论
+
+~~~kotlin
+class News : LitePalSupport() {
+    var id: Long = 0
+    var title: String? = null
+    var introduction: Introduction? = null
+    var commentList: List<Comment>? = null
+
+}
+~~~
+
+~~~kotlin
+class Comment : LitePalSupport() {
+    val id: Long = 0
+    lateinit var commentDesc: String
+}
+~~~
+
+News中使用List保存多条Comment，这里在Comment中是否添加News结果都是一样的，只要News中添加了List<Comment>，News的id都会自动被保存到Comment表中
+
+
+
+~~~kotlin
+   /**
+     * 新闻对应评论，多个评论对应一条新闻
+     *  一对多
+     *  */
+    private fun test2() {
+
+
+        val comment1 = Comment()
+        comment1.commentDesc = "多对一，评论1"
+        comment1.save()
+
+        val comment2 = Comment()
+        comment2.commentDesc = "多对一，评论2"
+        comment2.save()
+
+        val comment3 = Comment()
+        comment3.commentDesc = "多对一，评论3"
+        comment3.save()
+
+
+        val news = News()
+        news.title = "多对一，新闻1"
+        news.commentList = mutableListOf(comment1, comment2)
+        news.save()
+
+        val newsList = LitePal.findAll<News>()
+
+        newsList.forEach {
+            it.commentList?.forEach { log("${it.commentDesc}") }
+        }
+
+    }
+~~~
+
+
+
+News表中数据
+
+![](https://tva1.sinaimg.cn/large/006y8mN6ly1g7e2ioa6dmj30t109bq2x.jpg)
+
+Comment表中的数据
+
+![](https://tva1.sinaimg.cn/large/006y8mN6ly1g7e2ja39eqj30tz0c83yl.jpg)
+
+可以看到在News的模型中虽然添加了List<Comment>，最后保存的表里依然还是没有Comment的任何信息。Comment中虽然没有引用News，但最后的表里然有News的id。这个new_id是LitePal自动生成的。
+
+~~~kotlin
+//查询的代码
+val newsList = LitePal.findAll<News>()
+newsList.forEach {
+            it.commentList?.forEach { log("${it.commentDesc}") }
+        }
+~~~
+
+以上代码中最后获得newsList然后循环打印每个news中的commentList，是无法获取的。这里如果不使用激进查询，news中的commentList是无法查询到的。激进查询会拖慢查询速度，可以在News的get方法中再次查询Comment表
+
+~~~kotlin
+class News : LitePalSupport() {
+
+    var id: Long = 0
+    var title: String? = null
+    var introduction: Introduction? = null
+    var commentList: List<Comment>? = null
+        get() {
+            //查询Comment表
+            return LitePal.where("news_id=?", id.toString()).find<Comment>()
+        }
+}
+~~~
+
+注意查询语句里 `news_id` 
+
+**真心感觉这种设计不好，这里的Comment中的news_id是我提前看了数据库的字段才知道的，如果无法看到数据库根本也无法确定这个字段的具体名称。所以无法查看表字段的时候，建议还是直接用激进查询**
+
+
+
+### 多对多
+
+多对多会生成新的表格存id。
+
+一个新闻属于多分类，一个分类也有多个新闻
+
+~~~kotlin
+class News : LitePalSupport() {
+
+    var id: Long = 0
+    var title: String? = null
+    var introduction: Introduction? = null
+    var commentList: List<Comment>? = null
+        get() {
+            //查询Comment表
+            return LitePal.where("news_id=?", id.toString()).find<Comment>()
+        }
+
+
+    lateinit var categoryList: List<Category>
+
+}
+~~~
+
+~~~kotlin
+class Category : LitePalSupport() {
+    val id: Long = 0
+    lateinit var name:String
+    lateinit var newsList: List<News>
+}
+~~~
+
+~~~kotlin
+    /**
+     * 一条新闻对应多个分类，多个分类对应一条新闻
+     *  多对多
+     *  */
+    private fun test3() {
+        
+        val news1 = News()
+        news1.title = "多对多测试，新闻1"
+        news1.save()
+        val news2 = News()
+        news2.title = "多对多测试，新闻2"
+        news2.save()
+
+        val category1 = Category()
+        category1.name = "多对多测试，分类1"
+        category1.newsList = mutableListOf(news1, news2)
+        category1.save()
+
+        val category2 = Category()
+        category2.name = "多对多测试，分类2"
+        category2.newsList = mutableListOf(news1, news2)
+        category2.save()
+
+
+        val news = LitePal.findAll<News>(true)
+
+        news.forEach { it.categoryList.forEach { log(it.name) } }
+
+        val categorys = LitePal.findAll<Category>(true)
+
+        categorys.forEach {it.newsList.forEach{ log(it?.title?:"无")} }
+    }
+~~~
+
+注意这里使用的激进查询，可以直接所有关联表的数据
+
+
+
+News表的数据
+
+![](https://tva1.sinaimg.cn/large/006y8mN6ly1g7e2nsskfvj30s40dfq32.jpg)Category表的数据
+
+![image-20190927144530911](/Users/yeqiu/Library/Application Support/typora-user-images/image-20190927144530911.png)
+
+可以看出这两张表并无关联。LitePal生成了一个新的表来储存对相应的id
+
+![image-20190927144633668](/Users/yeqiu/Library/Application Support/typora-user-images/image-20190927144633668.png)category_news表，这个表示自动生成的。从代码上无法获得表名以及字段。所以在查询的时候不知道字段根本无法查询。这里使用激进查询就可以查出所有关联表的数据
+
+
+
+
+
+## 其他
+
+主键只能是id，不支持自定义
+
+数据表模型必须要有默认的无参构造，不要使用data class 。我试过会报很多奇怪的错误
+
+表明默认是模型名的小写
+
+关联表的名字不能自定义，如上面新闻和分类的表明自动命名为`category_news` 不可修改
+
+
+
+**LitePal并不能直接存储引用数据类型或者List。如果储存listt ，它会新建一张表存储。引用数据类型直接回被省略**
+
+如果遇到要存引用数据类型时候先想想是不是应该做成关联表
+
+
+
+
+
+相关资料：
+
+[郭霖的LitePal专栏](https://blog.csdn.net/guolin_blog/article/category/2522725)
