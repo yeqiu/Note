@@ -424,6 +424,32 @@ updateNews.updateAll("title = ? and commentcount > ?", "今日iPhone6发布", "0
 
 
 
+**更新关联表**
+
+一定要先设置要数据在更新
+
+~~~kotlin
+                song.fileName = "修改过后的文件名"
+                song.songLists.add(list)
+
+                list.listName = "修改过后的歌单"
+                list.songs.add(song)
+
+                //update之前一定要确保数据两个对象的数据已经设置好
+                song.update(song.id)
+                list.update(list.id)
+~~~
+
+
+
+
+
+
+
+
+
+
+
 ## 删除
 
 
@@ -709,7 +735,7 @@ class News : LitePalSupport() {
 
 注意查询语句里 `news_id` 
 
-**真心感觉这种设计不好，这里的Comment中的news_id是我提前看了数据库的字段才知道的，如果无法看到数据库根本也无法确定这个字段的具体名称。所以无法查看表字段的时候，建议还是直接用激进查询**
+**这里的Comment中的news_id是我提前看了数据库的字段才知道的，如果无法看到数据库根本也无法确定这个字段的具体名称。所以无法查看表字段的时候，建议还是直接用激进查询**
 
 
 
@@ -813,6 +839,14 @@ News表的数据
 **LitePal并不能直接存储引用数据类型或者List。如果储存listt ，它会新建一张表存储。引用数据类型直接回被省略**
 
 如果遇到要存引用数据类型时候先想想是不是应该做成关联表
+
+
+
+
+
+
+
+
 
 
 
