@@ -171,3 +171,4 @@ activity as? NewActivity?
 1.activity as? NewActivity 这种情况，不会抛出异常。虽然你as?后面期望转换为NewActivity类型(不可空类型)，但是要注意的是由于是as?，所以转换的结果是可空的，必须用NewActivity?类型变量去接收。这种情况比较特殊，一般用在Java调用kotlin中的一个方法，虽然你在kotlin中声明接收一个非空参数，但是java可能给你传入个null，你使用as?转换会比较安全。
 2.activity as NewActivity? 这种情况，activity为null时，强转失败，会抛出异常。如果顺利强转，由于你as后面的类型是可空的，所以转换的结果必须用NewActivity?类型变量去接收
 3.activity as? NewActivity? 这种情况activity为null时也不会抛出异常，无论是因为强转失败还是由于as?的类型声明，转换的结果都必须用NewActivity?类型变量去接收
+
