@@ -1,7 +1,7 @@
 ---
 layout:     post  
-title:      记录Android Studio升级到3.0的坑 
-subtitle:   记录Android Studio升级到3.0的坑 
+title:      记录Android Studio坑 
+subtitle:   记录Android Studio坑 
 date:       2019-01-25
 author:     小卷子
 header-img: img/tag-bg.jpg
@@ -13,7 +13,9 @@ tags:
 
 
 
-## AAPT2 error: check logs for details
+#### AAPT2 error: check logs for details
+
+studio 2的项目使用3打开基本就会遇到这个问题
 
 日志如下：
 
@@ -21,10 +23,6 @@ tags:
 AGPBI: {"kind":"error","text":"error: style attribute \u0027@android:attr/windowEnterAnimation\u0027 not found.","sources":[{"file":"/Users/yeqiu/WorkSpace/AndroidProject/yeqiu/demo/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values/values.xml","position":{"startLine":3548}}],"original":"","tool":"AAPT"}
 AGPBI: {"kind":"error","text":"error: style attribute \u0027@android:attr/windowExitAnimation\u0027 not found.","sources":[{"file":"/Users/yeqiu/WorkSpace/AndroidProject/yeqiu/demo/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values/values.xml","position":{"startLine":3550}}],"original":"","tool":"AAPT"}
 ~~~
-
-
-
-
 
 看起来是windowEnterAnimation和windowExitAnimation没有这两个属性。这是个老项目，在2.3是可以用的。
 
@@ -51,8 +49,6 @@ AGPBI: {"kind":"error","text":"error: style attribute \u0027@android:attr/window
 
 ~~~
 
-
-
 解决办法：
 
 去掉@符，修改为
@@ -68,9 +64,7 @@ AGPBI: {"kind":"error","text":"error: style attribute \u0027@android:attr/window
 
 
 
-
-
-# cannot access xxx
+#### cannot access xxx
 
 网上有人说这是idea的bug，重启一下就好了。
 
@@ -86,13 +80,64 @@ AGPBI: {"kind":"error","text":"error: style attribute \u0027@android:attr/window
 
 
 
-## 导入本地依赖库
 
-3.0之前导入本地库之后在Project Strucure里可以看到直接添加依赖，3.0之后需要在settings.gradle中手动添加库名才能在Project Strucure中显示
 
-~~~xml
-include ':app', ':hydrautils'
+####JKS 密钥库使用专用格式
+
+
+
+![](https://tva1.sinaimg.cn/large/006y8mN6ly1g7xn1nf5wrj30ax06twej.jpg)
+
+
+
+`JKS 密钥库使用专用格式。建议使用 "keytool -importkeystore -srckeystore XXX -destkeystore XXX -deststoretype pkcs12" 迁移到行业标准格式 PKCS12。`
+
+这里虽然报错了关闭窗口之后还是会生成key文件，但是似乎不能用。
+
+这个问题我也没找到好的办法，只能按照提示执行一遍命令
+
+~~~java
+keytool -importkeystore -srckeystore key.jks -destkeystore key.jks -deststoretype pkcs12
 ~~~
+
+![](https://tva1.sinaimg.cn/large/006y8mN6ly1g7xn3y9zjgj30ug0710su.jpg)
+
+会生成一个新的key文件，旧的key会被重命名备份。以后使用新的key就可以。
+
+
+
+
+
+#### 多渠道打包
+
+以前我都是直接在项目下面的 build.gradle中添加
+
+~~~java
+    productFlavors {
+        anzhi {}
+        baidu {}
+        xiaomi {}
+        qihu360 {}
+        huawei {}
+        oppo {}
+        yingyongbao {}
+        wandoujia {}
+        vivo {}
+        sougou {}
+        meizu {}
+        chexixi {}
+    }
+~~~
+
+之后再打包的时候可以选择debug和release。全选需要的渠道就可以打出来。然后更新到3之后打包的页面变成你了这样
+
+![](https://tva1.sinaimg.cn/large/006y8mN6ly1g7xn7p5xnlj30gl0blmxb.jpg)
+
+不在区分debug和release。这样就很难受。最后我选择了使用360加固多渠道打包（是时候学习多渠道打包了）
+
+
+
+
 
 
 
