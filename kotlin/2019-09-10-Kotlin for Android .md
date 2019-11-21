@@ -155,6 +155,117 @@ android {
 
 
 
+### Application单例
+
+以前用java的时候都是这么写的
+
+~~~java
+public class Application {
+    private volatile static Application instance; //声明成 volatile
+    private Application (){}	//私有构造
+    
+    public static Application getSingleton() {
+        if (instance == null) {                         
+            synchronized (Application.class) {
+                if (instance == null) {       
+                    instance = new Application();
+                }
+            }
+        }
+        return instance;
+    }
+}
+~~~
+
+这里其实Application有些特殊。它的onCreate一定会被执行。
+
+~~~kotlin
+class App : Application() {
+
+    companion object {
+     		@JvmStatic
+        lateinit var instance: App
+            private set
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        inst = this
+    }
+}
+~~~
+
+
+
+
+
+### object的使用
+
+这里的object和java的不一样，kotlin中使用object主要有一下三个场景
+
+**对象声明：**将类的声明和定义该类的单例对象结合在一起（即通过object就实现了单例模式）
+
+~~~kotlin
+object Test{
+    fun test(){
+        println("test")
+    }
+}
+~~~
+
+将class关键字替换为object，声明一个类，同时也声明了一个对象它的对象，这是kotlin中最简单的单例模式。所有的函数可以直接使用类名调用，类似静态方法
+
+**伴生对象：**
+
+kotlin中没有静态这个感念，使用伴生对象来替代静态方法，静态变量
+
+~~~kotlin
+class Test{
+    companion object {
+        val i = 1
+    }
+}
+~~~
+
+在`companion object`大括号中可以写变量和函数，使用上和java的静态成员一样
+
+**对象表达式：**
+
+对应java中的匿名内部类
+
+~~~kot
+    object :View.OnClickListener{
+        override fun onClick(view: View?) {
+        }
+    }
+~~~
+
+
+
+### 可变参数传递
+
+java中用参数类型...代替 `Object... objects` ，kotlin中使用 `vararg anys:Any`
+
+在java中参数传递可变参数是没有限制的
+
+~~~java
+   public void test1(Object... objects){
+        test2(objects);
+    }
+    public void test2(Object... objects){
+    }
+~~~
+
+kotlin中无法直接使用可变参数的引用，需要在变量名前加*
+
+~~~kotlin
+    fun test1(vararg anys: Any) {
+        test2(*anys)
+    }   
+    fun test2(vararg anys: Any) {
+    }
+~~~
+
 
 
 
