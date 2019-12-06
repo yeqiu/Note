@@ -176,6 +176,28 @@ join方法可以传递参数`public final synchronized void join(long millis)`
 
 
 
+### 线程优先级
+
+线程的优先级从1到10，1最低，10最高，主线程的优先级是5，新建线程的默认优先级也是5
+
+ Thread.MAX_PRIORITY：优先级10
+  Thread.MIN_PRIORITY：优先级1
+  Thread.NORM_PRIORITY：优先级5
+
+可以通过`setPriority()`设置优先级，`getPriority()`获取优先级
+
+
+
+### 线程同步 锁
+
+
+
+
+
+
+
+### 线程通信
+
 
 
 
