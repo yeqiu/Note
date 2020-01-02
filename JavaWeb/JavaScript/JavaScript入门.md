@@ -166,13 +166,198 @@ for (var index in array){
 
 
 
+### 表单元素设置，事件监听
+
+js的事件都是以on开头，如 onclick，onchange，onload
 
 
-### 表单元素设置
+
+![](https://tva1.sinaimg.cn/large/006tNbRwly1gai2tkl69tj30o108aabi.jpg)
+
+
+
+**获取元素对象**
+
+![](https://tva1.sinaimg.cn/large/006tNbRwly1gaiba4rditj30yf0hqgo4.jpg)
+
+
+
+**按钮点击事件**
+
+~~~html
+//指定button的onclick函数是onclick1() 执行多个函数可以用,隔开
+<input type="button" id="button" value="button" onclick="onclick1()" />
+~~~
+
+~~~javascript
+//js中证明onclick1()函数
+function onclick1() {
+    alert("onclick1")
+}
+~~~
+
+
+
+**获取元素**
+
+~~~javascript
+document.getElementById("button")
+//这个获取的是数组
+document.getElementsByName("button")
+~~~
+
+
+
+**单选按钮**
+
+~~~html
+<input type="radio" name="sex" value="男">男
+<input type="radio" name="sex" value="女">女<br>
+~~~
+
+~~~javascript
+function onLoad() {
+    let sex = document.getElementsByName("sex");
+    sex[0].checked = true;
+}
+
+function onclick1(){
+    let sex = document.getElementsByName("sex");
+    var sexText ;
+    if (sex[0].checked) {
+        sexText = sex[0].value;
+    }else{
+        sexText = sex[1].value;
+    }
+    alert(sexText)
+}
+~~~
+
+
+
+**列表框**
+
+~~~html
+<select name="yyyy" id="yyyy"></select>
+<select name="mm" id="mm"></select>
+<select name="dd" id="dd"></select>
+~~~
+
+~~~javascript
+function onLoad() {
+    let yyyy = document.getElementById("yyyy");
+    let mm = document.getElementById("mm");
+    let dd = document.getElementById("dd");
+    let date = new Date();
+    let yare = parseInt(date.getFullYear());
+
+    for (let i = 2000; i <=yare; i++) {
+        yyyy.options.add(new Option(i, i))
+    }
+    for (let i = 1; i <=12; i++) {
+        mm.options.add(new Option(i, i))
+    }
+    for (let i = 1; i <= 31; i++) {
+        dd.options.add(new Option(i, i))
+    }
+}
+~~~
+
+~~~javascript
+//列表框设置默认选中，动态删除添加option
+//年月日三级联动
+var yyyy;
+var mm;
+var dd;
+
+function onLoad() {
+    yyyy = document.getElementById("yyyy");
+    mm = document.getElementById("mm");
+    dd = document.getElementById("dd");
+    //设置默认的年月日
+    let date = new Date();
+    let year = parseInt(date.getFullYear());
+
+    initSelect(yyyy,2000,year);
+    initSelect(mm,1,12);
+    initSelect(dd,1,31);
+    //年份默认选中居中的位置
+    var n=yyyy.length;
+    yyyy.selectedIndex=Math.round(n/2);
+}
+
+
+/*给列表框赋值，传递三个参数：表单元素，开始值，结束值*/
+function initSelect(obj,start,end){
+    for(var i=start;i<=end;i++){
+        obj.options.add(new Option(i,i));
+    }
+}
+
+function onChangeYmd() {
+    //清除当前的日，重新赋值
+    dd.options.length = 0;
+    
+    var m=parseInt(mm.value);
+    var dayEnd;
+    switch (m) {
+        case 4:
+        case 6:
+        case 9:
+        case 11:
+            dayEnd = 30;
+            break
+        case 2:
+            //闰年判断
+            y=parseInt(yyyy.value);
+            if((y % 4==0 && y % 100 !=0) || y % 400 ==0){
+                dayEnd=29;
+            }else{
+                dayEnd = 28;
+            }
+            break
+        default:
+            dayEnd = 31;
+            break
+    }
+    //重新设置日
+    initSelect(dd,1,dayEnd)
+}
+~~~
+
+
+
+
+
+**js中添加事件**
+
+~~~html
+<input type="button" id="btn" value="按钮" />
+~~~
+
+~~~javascript
+function onClick() {
+    document.getElementById("btn").onclick = function () {
+        alert("btn的点击事件")
+    }
+}
+~~~
+
+onClick是自定义函数，函数中获取btn按钮并设置点击事件。
+
+注意：这种方式需要在html的onload调用到这个函数。相当于andorid中在onCreate()注册点击事件。
+
+
 
 
 
 ### DOM和事件总结
 
 
+
+![](https://tva1.sinaimg.cn/large/006tNbRwly1gaiba4rditj30yf0hqgo4.jpg)
+
+
+
+### 其他操作
 
