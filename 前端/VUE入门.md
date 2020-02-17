@@ -4,7 +4,7 @@
 
 ### 环境配置
 
-我的电脑是mac，所以一下的环境配置都是在mac下的
+我的电脑是mac，所以以下的环境配置都是在mac下的
 
 1.安装brew [brew官网](https://brew.sh/index_zh-cn.html)
 
@@ -64,7 +64,7 @@ vue init webpack 项目名（不能出现大写字母）
 
 **1.Project name (vue-demo)**
 
-项目描述，可直接回车默认
+项目名字，可直接回车默认
 
 **2.Project description (A Vue.js project)**
 
@@ -225,7 +225,7 @@ export default new Router({
 
 
 
-### 删除
+### 删除#
 
 默认的项目在运行后打开页面会在地址栏上添加#，添加#号是为了减少后台通讯的频率。但是在有些场合(如微信支付)#不能出现。而且地址栏出现#也不美观。切换为history模式
 
@@ -465,7 +465,21 @@ router是否使用history模式，选择使用 输入Y
 
 
 
+
+
 ### cli3项目结构
+
+todo
+
+
+
+
+
+
+
+
+
+### 语法
 
 
 
