@@ -199,19 +199,26 @@ ALTER TABLE 表名
 DROP PRIMARY KEY;
 ```
 
+注意在创建表的时候一般主键会使用AUTO_INCREMENT属性，如果使用这个属性的主键，那么在删除主键之前要先去掉这个属性。
+
+
+
 #### 添加唯一属性
 
 ```sql
-ALTER TABLE 表名
-ADD UNIQUE KEY|INDEX [字段名] 
+ALTER TABLE admin_user ADD unique (`name`);
 ```
 
 #### 删除唯一属性
 
 ```sql
 ALTER TABLE 表名 
-DROP 字段名;
+DROP index_name;
 ```
+
+注意唯一这个属性要添加别名（index_name),删除的时候可以直接删除这个别名。如果不添加别名，mysql会自动使用这个字段名作为别名。
+
+
 
 #### 修改表名
 
@@ -227,7 +234,36 @@ RENAME TABLE tbl_name TO 新表名;
 #### 清空表
 
 ~~~sql
-RUNCATE TABLE 表名;
+TRUNCATE TABLE 表名;
+~~~
+
+如果有外键约束，就无法使用TRUNCATE清空，需要先去除外键约束。
+
+
+
+#### 注释
+
+建表语句最后加上`COMMENT`语句
+
+~~~sql
+CREATE TABLE 表名 (
+    各个列的信息 ...
+) COMMENT '表的注释信息';
+~~~
+
+字段注释添加在字段属性后面
+
+~~~sql
+CREATE TABLE student_info(
+	number INT PRIMARY KEY COMMENT '主键',
+	name VARCHAR(20) NOT NULL COMMENT '姓名',
+	sex ENUM('男','女') DEFAULT '男' COMMENT '性别',
+	id_number CHAR(18) COMMENT '身份证号',
+    department VARCHAR(30) COMMENT '学院',
+    major VARCHAR(30) COMMENT '科目',
+    enrollment_time DATE COMMENT '入学时间',
+    UNIQUE KEY id_number (id_number)
+)COMMENT '学生信息表';
 ~~~
 
 
@@ -293,8 +329,6 @@ SET：表示可能从给定的值里选择多个，格式如下：
 ```sql
 SET('str1', 'str2', 'str3' ⋯)
 ```
-
-
 
 
 

@@ -323,7 +323,9 @@ npm uninstall vue-cli -g
 npm install -g @vue/cli@3.11.0 
 ~~~
 
-#### 创建cli3项目
+
+
+### 创建cli3项目
 
 cli3项目的创建和cli2的命令不一样。
 
@@ -457,19 +459,11 @@ router是否使用history模式，选择使用 输入Y
 
 ![](https://tva1.sinaimg.cn/large/006tNbRwly1gawgwqhefwj30h207k0sl.jpg)
 
-最后一定要记得点ok关闭窗口
-
-
-
 **cli3选择对应的命令即可**
 
 
 
-
-
-### cli3项目结构
-
-todo
+### cli
 
 
 
@@ -479,9 +473,7 @@ todo
 
 
 
-### 语法
-
-
+### 模板语法
 
 
 
@@ -521,11 +513,11 @@ command not found: vue
 
 修改完文件后运行文件才能生效，执行`source .bash_profile`
 
-我在首次添加环境变量后，运行vue可以识别。然而关闭终端窗口再次打开有无法识别命令。又试过多次安装卸载，搞了一下午。最后索性把node卸载了，重新安装，终于搞定了。记录一下卸载的命令。
+我在首次添加环境变量后，运行vue可以识别。然而关闭终端窗口再次打开又无法识别命令。又试过多次安装卸载，搞了一下午。最后索性把node卸载了，重新安装，终于搞定了。记录一下卸载的命令。
 
 卸载vue的命令见上文，卸载完成后最好在使用cnpm命令再执行一次。
 
-我没找到卸载npm的方法，直接卸载node似乎也能直接卸载npm。我是通过homebrew安装的，卸载直接使用`brew uninstall node`，安装包安装的可以参见[Mac下如何把node和npm卸载干净](https://blog.csdn.net/caseywei/article/details/82659049)
+node我是通过homebrew安装的，卸载直接使用`brew uninstall node`，安装包安装的可以参见[Mac下如何把node和npm卸载干净](https://blog.csdn.net/caseywei/article/details/82659049)
 
 
 
@@ -537,12 +529,9 @@ command not found: vue
 
 
 
-3.关于cnpm，建议直接使用cnpm安装插件。所有的安装和卸载都可以使用cnpm。
+3.npm ERR! code ELIFECYCLE webpack-dev-server --inline --progress --config build/webpack.dev.conf.js
 
-~~~com
-//cnpm安装指定
-npm install -g cnpm --registry=https://registry.npm.taobao.org
-~~~
+具体的报错信息可能不是像标题那样，导入项目之后无法运行多半都是因为node_modules里的文件被修改了导致依赖库不完整。解决办法：删除项目下node_modules文件夹，在项目下执行 cnpm install。重新生成node_modules，之后再执行cnpm run build重新编译，不报错的话应该就可以运行了。
 
 
 
