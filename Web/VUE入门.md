@@ -52,52 +52,6 @@ cnpm install -gd vue-cli
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ### 创建vue-cli2项目
 
 先在终端中进入需要创建项目的目录
@@ -130,7 +84,7 @@ vue init webpack 项目名（不能出现大写字母）
 
 **6.Use ESLint to lint your code? (Y/n) **
 
-是否使用ESLint代码规范，暂时不添加 n
+是否使用ESLint代码规范，建议不添加 n
 
 接下来还有一些单元测试之类的选择，一律回车默认即可。
 
@@ -390,7 +344,7 @@ new Vue({
 
 router用于组件之间的跳转，store是vuex 用户管理组件之间的状态。
 
-![](https://tva1.sinaimg.cn/large/00831rSTly1gcc6spgzc9j308v07xq31.jpg)
+![src目录](https://tva1.sinaimg.cn/large/00831rSTly1gcc6spgzc9j308v07xq31.jpg)
 
 assets中存放资源
 
@@ -574,7 +528,7 @@ component：必须和上面导入的名字一致
       <router-link to="/about">About</router-link>
 ~~~
 
-除了使用标签跳转还可以在代码中创建Router的实例加载组件
+除了使用标签跳转还可以在代码中使用Router的实例加载组件
 
 同样还是需要在index.js文件中声明，然后在需要加载地方
 
@@ -628,7 +582,7 @@ mutations：定义方法来改变state的值
 
 **使用vuex**
 
-1.定义store js文件，这个在配置时选择添加vuex会自动生成。
+1.定义store.js文件，这个在配置时选择添加vuex会自动生成。
 
 2.state中定义需要改变的值
 
@@ -796,8 +750,6 @@ V-bind+属性名="变量名"，绑定之后值要去data的数据里面找。同
 
 
 
-
-
 ### 计算属性和侦听器
 
 计算属性：computed
@@ -831,9 +783,13 @@ V-bind+属性名="变量名"，绑定之后值要去data的数据里面找。同
 
 watch只能监听指定的值(msg)发生变化，computed可以监听函数体内任意一个值发生变化。computed的结果(result)不可以定义在data函数中，如果定义会报错，因为computed作为计算属性定义并返回的结果不可别重新定义和赋值，这个变量只能由computed中指定的函数赋值。
 
-watch使用在异步数据监听上，computed应用在数据联动上
+watch使用在异步数据监听上
 
-### 条件渲染，列表渲染，class和style绑定
+computed：一般用于一个属性是由其他多个属性计算得来。
+
+
+
+### 条件渲染，列表渲染
 
 #### 条件渲染
 
@@ -859,6 +815,10 @@ watch使用在异步数据监听上，computed应用在数据联动上
 v-show=后面跟的也是一个boolean的表达式，条件成立就显示渲染
 
 **v-if和v-show的区别**
+
+共同点：都能实现元素的显示隐藏
+
+v-show只是简单的控制元素的display属性，而v-if才是条件渲染，if(true)元素被渲染否则元素销毁。v-show由更高的渲染开销，v-if由更高的切换开销。v-if有v-else-if 和v-else组合，v-show只能单独使用。
 
 
 
@@ -941,6 +901,115 @@ export default new Router({
 ~~~
 
 从cli3开始创建项目时可以直接选择使用history模式
+
+### vue的生命周期
+
+**beforeCreate：**
+
+组件刚创建，元素dom和数据还没初始化。并不能再这个函数中操作数据。
+
+**created：**
+
+数据已经初始化完成，自定义的函数也可以调用。但是dom未渲染。可以在这个周期中进行网络数据的异步请求。
+
+**beforeMount：**
+
+dom未完成挂载，数据的双向绑定还未完成，还是显示{{}}
+
+**mounted：**
+
+数据和dom已经完成挂载，这个周期适合执行初始化需要操作dom的函数。
+
+**beforeUpdate：**
+
+只要是页面的数据改变都会触发。请求赋值一个数据的时候就会执行这个周期，没有数据改变不执行。
+
+**updated：**
+
+数据更新完毕，beforeUpdate和updated要慎用，因为页面更新数据就会触发，这里操作数据很影响性能。
+
+**beforeDestroy：**
+
+组件销毁之前执行，这个周期里是无法阻止路由跳转的，但是可以做一些路由离开时的操作。这个周期里还可以使用数据和函数。可以做类似清楚计时器之类的操作。
+
+**destroyed：**
+
+页面销毁后调用
+
+![](https://tva1.sinaimg.cn/large/00831rSTly1gceqp4pkbnj30k01en45k.jpg)
+
+
+
+
+
+### vue中的数据，事件和方法
+
+**数据：**
+
+vue实例中的data属性中管理挂载dom中的所有数据。在data中声明的数据，在html模板中可以直接使用{{变量名}}直接使用。
+
+{{}}也可以使用v-text代替。
+
+**事件：**
+
+在元素中使用v-on模板
+
+~~~html
+<div v-on:click="click">点击</div>
+~~~
+
+在methods属性中填写click函数，即绑定了点击事件。v-on:click可以使用@click简写。v-on的简写方式是@，同样之前说的v-bind的简写是:
+
+**方法：**
+
+方法是指写下methods属性中的代码。
+
+~~~javascript
+    methods: {
+      add () {
+        store.commit('addCount')
+      },
+      click(){
+        console.log("click")
+      }
+    }
+~~~
+
+上面的两个函数都可以被html模板中的事件直接调用。
+
+
+
+### vue数据双向绑定
+
+使用{{}}这种差值表达式实现的只是数据的单向绑定。页面的展示根据数据的改变，但是页面的改变却不能影响数据。input这样的标签可以显示数据也可以改变数据，我们使用差值表达式仅仅只能改变input默认显示的数据，当inpu的数据发生改变，如果想要数据源也发生改变就要使用双向绑定
+
+**v-model：**
+
+~~~html
+<input v-model="msg"/>
+~~~
+
+~~~javascript
+    data () {
+      return {
+        msg:"msg"
+      }
+    }
+~~~
+
+
+
+
+
+### vue与其他框架
+
+我并没有接触过其他框架，但是原生js或者jquery中如果要改变页面显示的数据，就必须找到这个dom元素，操作这个元素来设置数据。但是在vue中不要去操作dom，直接改变数据，vue会直接帮我们更新dom。vue更像是面向数据编程。
+
+
+
+
+
+
 
 ### axios在vue中的使用
 
@@ -1032,7 +1101,7 @@ node我是通过homebrew安装的，卸载直接使用`brew uninstall node`，�
 
 5.关闭eslint
 
-eslint真实个烦人的小妖精
+eslint真是个烦人的小妖精
 
 在.eslintrc.js文件中找到@vue/standard并注释掉
 
