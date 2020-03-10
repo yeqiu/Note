@@ -480,15 +480,83 @@ WHERE后面的组合也可以使用在修改，删除的语句上
 
 #### group by分组
 
+把值相同放到一个组中，最终查询出的结果只会显示组中一条记录
 
+~~~sql
+SELECT * FROM 表名 GROUP BY 要分组的字段名
+~~~
+
+##### GROUP_CONCAT()
+
+GROUP_CONCAT函数可以用来查看组中某个字段的详细信息
+
+~~~sql
+SELECT GROUP_CONCAT(要查看的字段) FROM asset GROUP BY 要分组的字段名
+~~~
+
+上面的sql可以分组中所有的要查看的字段查询出来。
+
+##### 配合聚合函数
+
+**COUNT()：统计记录总数**
+COUNT(字段名称)，不会统计NULL值
+
+~~~sql
+SELECT COUNT(字段名) FROM 表名;
+~~~
+
+查询出的结果就是改字段的总数，COUNT(字段名)可以起别名
+
+~~~sql
+SELECT COUNT(字段名) AS 别名 FROM 表名;
+~~~
+
+**SUM() ：求和**
+
+用法类似COUNT()
+
+**MAX()：求最大值**
+
+用法类似COUNT()
+
+**MIN()：求最小值**
+
+用法类似COUNT()
+
+**AVG()：求平均值**
+
+用法类似COUNT()
+
+##### 配合HAVING
+
+HAVING子句对分组结果进行二次筛选
+
+~~~sql
+SELECT 字段名  FROM 表名 HAVING 条件 ;
+~~~
 
 #### order by 排序
+
+ASC：升序
+
+DESC：降序
+
+~~~sql
+SELECT 字段名  FROM 表名 ORDER BY 排序的字段 DESC ;
+~~~
+
+打乱顺序，随机顺序
+
+~~~sql
+ORDER BY RAND();
+~~~
 
 
 
 #### limit限制结果数量
 
-
+LIMIT 条数：显示结果集的指定条数
+LIMIT offset,row_count：从offset开始，显示几条记录,offset从0开始
 
 
 
