@@ -336,27 +336,147 @@ SET('str1', 'str2', 'str3' ⋯)
 
 #### 插入数据
 
+~~~sql
+INSERT INTO 表名字(字段名,...) {对应的值,...};
+~~~
 
+添加多条可以使用
+
+~~~sql
+INSERT INTO 表名字(字段名,...){对应的值,...}{对应的值,...};
+~~~
+
+不添加字段名默认会按照建表时的顺序添加值。
 
 #### 修改数据
 
+~~~sql
+UPDATE 表名 SET 字段名=值,字段名=值 WHERE 条件;
+~~~
 
+不添加 WHERE 条件会改变表中所有的对应字段。
 
 #### 删除数据
 
+~~~sql
+DELETE FROM 表名 [WHERE 条件]
+~~~
 
+不添加 WHERE 条件会删除表中所有记录。
 
+使用DELETE删除数据并不会清空自增长的值。
 
+#### 清空表
+
+~~~sql
+TRUNCATE TABLE 表名;
+~~~
+
+使用TRUNCATE清空表后会删除自增长的记录
 
 ### 查找数据
 
 #### 查询语句的基本形式
 
+~~~sql
+SELECT 字段名,... FROM 表名 ;
+~~~
 
+SELECT select_expr,... FROM tbl_name
+[WHERE 条件]
+[GROUP BY {col_name|position} HAVING 二次筛选]
+[ORDER BY {col_name|position|expr} [ASC|DESC]]
+[LIMIT 限制结果集的显示条数] 
+
+查询语句中可以使用WHERE来指定查询条件，GROUP BY来进行分组，LIMIT来限制条数
+
+~~~sql
+SELECT * FROM 表名 ;
+~~~
+
+*代表查询挑中的所有字段，在查询时候可以对字段和表名设置别名
+
+~~~sql
+SELECT 字段名 AS 别名 FROM 表名 AS 表的名字
+~~~
+
+单表查询并没有什么必要被表取别名
 
 #### where条件筛选
 
+**使用基本运算符 **
 
+~~~sql
+>,>=, <, <=, !=
+~~~
+
+where中不可以直接使用null，如果条件中包含null
+
+**匹配null**
+
+~~~sql
+查询字段是null的
+WHERE 字段名 <=>NULL;
+WHERE 字段名 IS NULL;
+~~~
+
+~~~sql
+WHERE 字段名 IS NOT NULL NULL;
+~~~
+
+**指定查询范围**
+
+~~~sql
+WHERE 字段名 BETWEEN 值1 AND 值2
+范围取反
+WHERE 字段名 NOT BETWEEN 值1 AND 值2
+~~~
+
+**指定集合范围**
+
+~~~sql
+WHERE 字段名 IN (值1,值2...);
+范围取反
+WHERE 字段名 NOT IN (值1,值2...);
+~~~
+
+**AND和OR**
+
+~~~sql
+AND表示要同时满足条件
+WHERE 字段名1 = 值1 AND 字段名2 = 值2
+~~~
+
+~~~sql
+OR表示满足其中一个条件即可
+WHERE 字段名1 = 值1 OR 字段名2 = 值2
+~~~
+
+**匹配字符（模糊查询）**
+
+使用LIKE NOT LIKE
+
+~~~sql
+查询的数据中包含值1
+WHERE 字段名1 LIKE 值1
+~~~
+
+通配符
+
+模糊查询时可以使用%来匹配条件
+
+~~~sql
+这里%表示可以是任意长度的字符串
+WHERE 字段名1 LIKE "%值%"
+~~~
+
+_（下划线）任意一个字符
+
+~~~sql
+WHERE 字段名1 LIKE "_"
+~~~
+
+WHERE后面的组合也可以使用在修改，删除的语句上
 
 #### group by分组
 
