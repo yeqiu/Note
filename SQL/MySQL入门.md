@@ -564,61 +564,144 @@ LIMIT offset,row_count：从offset开始，显示几条记录,offset从0开始
 
 #### 多表联查
 
+#### 内连接
 
+~~~sql
+SELECT 字段名称,... FROM 表1
+INNER JOIN 表2
+ON 连接条件
+~~~
+
+INNER关键字可以省略
+
+#### 外连接
+
+外连接分为左外连接和右外连接
+
+**左外连接**
+
+~~~~sql
+SELECT 字段名称,... FROM 表1
+LEFT [OUTER] JOIN 表2
+ON 条件
+~~~~
+
+OUTER关键字可以省略
+
+先显示左表中的全部记录，再去右表中查询复合条件的记录，不符合的以NULL代替
+
+这里左边的表是表1
+
+**右外连接**
+
+~~~sql
+SELECT 字段名称,... FROM 表1
+ RIGHT [OUTER] JOIN 表2
+ON 条件;
+~~~
+
+先显示右表中的全部记录，再去左表中查询复合条件的记录，不符合的以NULL代替
+
+外连接的OUTER关键字可以省略
+
+##### 内连接和外连接
+
+内连接查询会查询两个表中符合连接条件的记录，如果不合符条件不会加入到结果。
+
+外连接查询会找到主表中的所有内容显示，然后在连接副表的条件，不合符条件的会用null代替
 
 #### 外键约束
 
+在多表数据存储的时候可能会插入不合法的数据。
 
+创建外键必须要有主表和子表，子表的外键必须是父表的主键。一般子表的外键都是子表的id。
+
+如果外键字段没有创建索引，mysql会自动添加索引。
+
+**建表时添加外键**
+
+~~~sql
+CREATE TABLE `user` (
+  `id` int(8) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `project_id` int(8) NOT NULL COMMENT '项目id',
+  PRIMARY KEY (`id`),
+  CONSTRAINT `fk_asset_project_id` FOREIGN KEY (`project_id`) REFERENCES `project` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ;
+~~~
+
+~~~sql
+  CONSTRAINT 外键名 FOREIGN KEY (指定为外键的字段名) REFERENCES 父表 (父表的对应字段名)
+~~~
 
 #### 动态创建外键
 
+**删除外键**
 
+~~~sql
+ALTER TABLE 表名 DROP FOREIGN KEY 外键名;
+~~~
 
-#### 删除外键
+**单独添加外键**
 
+~~~sql
+ALTER TABLE 表名 ADD FOREIGN KEY 外键名 FOREIGN KEY (指定为外键的字段名) REFERENCES 父表 (父表的对应字段名);
+~~~
 
+#### 外键的参照操作
+
+**CASCADE：**从父表删除或更新，子表也跟着删除或者更新，级联的操作
+
+**SET NULL：**从附表删除或者更新记录，并设置子表的外键列为NULL
+
+**NO ACTION | RESTRIC：**拒绝对父表做更新或者删除操作，默认值
 
 #### 子查询
 
+将一个查询语句嵌套在另一个查询语句中。
 
+~~~sql
+SELECT 字段名 FROM 表1 WHERE 字段=(SELECT 字段 FROM 表2);
+~~~
 
-#### any、some、all关键字的子查询
+内层查询的结果可以作为外层查询的条件。
+
+#### 查询结果去重
+
+去重使用DISTINCT
+
+~~~sql
+SELECT DISTINCT (字段名) FROM 表名;
+~~~
 
 
 
 #### 联合查询
 
+将查询的数据整合到一起
 
+**UNION**
 
-#### 无限级分类数据表
+~~~sql
+SELECT 字段名 FROM 表1 
+UNION
+SELECT 字段名... FROM 表2;
+~~~
 
+**UNION ALL**
 
+~~~sql
+	SELECT 字段名,... FROM 表1 
+UNION ALL
+SELECT 字段名... FROM 表2;
+~~~
 
-### 常用函数
-
-#### 数据函数
-
-
-
-#### 字符串常用函数
-
-
-
-#### 日期常用函数
-
-
-
-#### 其他常用函数
-
-
-
-### MyBatis入门
+UNION ALL 是简单的合并，UNION会去掉表中重复记录
 
 
 
 
 
-### MyBatis进阶
+
 
 
 
