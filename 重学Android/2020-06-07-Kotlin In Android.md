@@ -567,3 +567,58 @@ kotlin中没有``static``关键字，对应的功能用伴生对象实现 `compa
     }
 ~~~
 
+
+
+
+
+
+
+
+
+
+
+### 延时初始化
+
+有很多时候需要将变量声明称成员变量，在某个方法中赋值。在使用前可以确保一定是已经赋值过的。但是kotlin的空安全机制要求在声明变量时就必须赋值或者声明称可空类型。
+
+这是可以使用延时初始化来解决空安全限制。
+
+~~~kotlin
+    private lateinit var str: String
+    fun test() {
+
+        str = "test"
+        str.length
+        
+    }
+~~~
+
+使用`lateinit`关键字。这个关键字相对于声明这个变量不需要kotlin对变量进行空安全判断。但是如果使用前没有做初始化配置还是会报错。
+
+~~~kotlin
+    private lateinit var str: String
+    fun test() {
+
+       if (::str.isLateinit){
+           //变量未初始化
+       }else{
+           //变量已经初始化
+       }
+    }
+~~~
+
+以上代码可以判断变量是否已经进行过初始化。
+
+**注意 `lateinit` 不允许修饰基础类型（基础类型int， double，boolean等）。 **
+
+
+
+### 密封类(sealed Class)
+
+密封类就是是子类固定的类，使用sealed修饰
+
+和枚举的区别是：枚举实例固定，密封类是子类固定。
+
+密封类和子类必须写在同一个文件
+
+密封类本身是抽象的，不能直接实例化，构造函数默认是private
