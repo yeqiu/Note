@@ -316,6 +316,18 @@ Call<ResponseBody> getByIds(@Query("ids[]") List<Integer> ids);
 
 
 ### 拦截器
+
+<<<<<<< HEAD
+Retrofit依然使用OKhttp的拦截器
+
+1.实现okhttp3.Interceptor
+
+
+
+
+
+
+=======
 Retrofit依然使用okHttp的拦截器。
 
 实现okhttp3.Interceptor接口创建拦截器。
@@ -391,6 +403,7 @@ public class RetrofitLog {
             }catch (Exception e){
                 requestBodyString = buffer.readUtf8();
             }
+>>>>>>> 8d06c1e9cd17746ba43a06f567cd72acb157fd6a
 
 
             log.append("requestBody = ")

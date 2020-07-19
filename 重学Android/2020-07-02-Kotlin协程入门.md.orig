@@ -17,6 +17,10 @@ tags:
 
 
 
+
+<<<<<<< HEAD
+
+
 ### 协程是什么
 
 协程是`Kotlin`官方提供的一套管理线程的API，可以用看起来同步的代码写出异步的代码。
@@ -132,7 +136,7 @@ GlobalScope.launch (Dispatchers.Main){
 
 
 
-
+=======
 ### 协程是什么
 
 
@@ -172,4 +176,5 @@ GlobalScope.launch (Dispatchers.Main){
 ### 协程的delay()和Thread.sleep()
 
 
+>>>>>>> 8d06c1e9cd17746ba43a06f567cd72acb157fd6a
 
