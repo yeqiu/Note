@@ -678,3 +678,108 @@ fun main(args: Array<String>) {
     print(i)
 }
 ```
+
+
+
+### 高阶函数
+
+所谓高阶函数就是函数的参数或者返回值是另一个函数。
+
+详见 2020-05-29-高阶函数和Lambda表达式
+
+
+
+### 内联函数
+
+**函数的调用**
+
+调用一个方法其实就是一个方法压栈和出栈的过程，调用方法时压入方法栈，然后执行方法体，方法结束后出栈，这个压栈和出栈的过程是一个耗费资源的过程，这个过程中传递形参也会耗费资源。很多时候我们在面对要做同一操作的时候会封装成一个公共方法，代码看上去确实简洁了很多。但是这个方法会被多次调用，增加了方法的压栈出栈，增加资源耗费。
+
+**inline内联函数**
+
+被inline标记的函数就是内联函数,其原理就是:在编译时期,把调用这个函数的地方用这个函数的方法体进行替换
+
+~~~kotlin
+fun main(args: Array<String>) {
+
+    inlineTest("inlineTest")
+}
+
+inline fun inlineTest(s:String){
+    log(s)
+}
+~~~
+
+这段代码相当于
+
+~~~kotlin
+fun main(args: Array<String>) {
+    log("inlineTest")
+}
+~~~
+
+在编译后会直接将inline函数的代码直接替换到调用处，如果有多个地方调用会被复制替换。减少方法压栈,出栈，进而减少资源消耗;
+
+**内联函数的限制**
+
+当内联函数的参数是函数或者Lambda表达式的时候，当前的内联函数无法传递这个参数给其他非内联函数。
+
+~~~kotlin
+    inline fun inlineTest(action: () -> Unit) {
+        test(action) //这里会报错的
+    }
+
+    fun test(action: () -> Unit) {
+    }
+~~~
+
+因为在编译后这里的action就不在是一个函数，已经是一个具体的值。而test函数要接受的是一个表达式类型的参数，这里参数就无法匹配上。内联函数在编译后会被进行代码替换。
+
+内联函数应用的`lambda`表达式是可以使用`reutrn`关键字来进行函数返回的。非内联函数只能进行局部返回。
+
+例：
+
+~~~kotlin
+fun main(args: Array<String>) {
+
+    val str = "";
+    printString(str) {
+        if (str.isEmpty()){
+            return@printString
+        }
+        print(str)
+    }
+}
+
+fun  printString(str:String,block:(String)->Unit){
+    println("start")
+    block(str)
+    println("end")
+}
+~~~
+
+上述代码`main`函数执行一个普通的高阶函数，调用`printString`的时候在`lambda`表达式中判断，如果是空就不直接` return@printString`跳出这个`lambda`，不会执行下面的` print(str)`。注意在`lambda`中不可以直接使用`return`关键字，必须指定`return`的表达式范围。
+
+输出的结果
+
+~~~cmd
+start
+end
+~~~
+
+
+
+将`printString`函数替换为内联函数时候，就可以在表达式中使用`return`关键字,这时使用`return`来结束。输出的结果
+
+~~~cmd
+start
+~~~
+
+因为在编译后代码进行替换，这里使用`return`会直接结束`main`函数。
+
+
+
+
+
+
+
