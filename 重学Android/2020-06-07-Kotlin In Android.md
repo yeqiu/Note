@@ -567,13 +567,21 @@ kotlin中没有``static``关键字，对应的功能用伴生对象实现 `compa
     }
 ~~~
 
+kotlin中并没有定义静态的关键字，但是有伴生对象来支持静态的调用。
 
+**静态函数**
 
+如果需要给java调用静态方法，可以使用注解和顶级函数。
 
+#### @JvmStatic
 
+使用`@JvmStatic`注解的方法，编译会把这个方法编译成真正的静态方法。
 
+**注意：`@JvmStatic`这个注解只能使用在伴生对象里或者单例类中**
 
+#### 顶级函数
 
+顶级函数就是包级函数，没有定义在任何一个类中。写在kotlin文件中的函数。调用的时候也可以直接调用，不需要使用类名。如果是java调用需要使用文件名.函数名。
 
 
 
@@ -622,3 +630,51 @@ kotlin中没有``static``关键字，对应的功能用伴生对象实现 `compa
 密封类和子类必须写在同一个文件
 
 密封类本身是抽象的，不能直接实例化，构造函数默认是private
+
+
+
+### 扩展函数
+
+扩展函数就是在不修改类源码时候，在其他文件为这个类创建函数。
+
+```kotlin
+fun String.test(){
+    println("调用了test")
+    //扩展函数中如果要调用本身其他的函数，可以使用this
+    val length = this.length
+    println("length = $length")
+}
+
+fun main(args: Array<String>) {
+
+    "test".test()
+}
+```
+
+### 运算符重载
+
+java是不支持运算符重载的，所谓运算符重载就是修改+-*/等运算符的功能。
+
+使用关键字`operator`就可以重载运算符了。
+
+如：user对象的年龄相加
+
+```kotlin
+class User(val age: Int) {
+
+    operator fun plus(user: User): Int {
+        return age + user.age;
+    }
+}
+
+
+fun main(args: Array<String>) {
+
+    val user1=User(1)
+    val user2=User(2)
+
+    val i = user1 + user2
+
+    print(i)
+}
+```
