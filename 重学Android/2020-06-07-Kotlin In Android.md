@@ -781,8 +781,6 @@ start
 
 
 
-
-
 ### 泛型
 
 一般情况，我们需要给变量指定一个具体的类型，来存放指定的数据。泛型允许在不指定具体类型的情况下进行编程。例：List就并没有限制存放的数据类型，可以存放整型或者字符串。
@@ -828,6 +826,43 @@ fun <T:Number> getType(param:T):T{
 使用`<T:Number>`这种方式表示泛型约束了只能是`Number`或者它的子类。
 
 泛型的默认上界是`<Any?>`可空的类型，如果要让泛型不可空，需要将上界改为`<Any>`
+
+
+
+#### 泛型实化
+
+这是`java`中没有的感念，所有`JVM`语言的泛型都是伪泛型。因为`java`的泛型擦除机制，在真正使用泛型的地方无法拿到这个泛型的实际类型。`Kotlin`提供了内联函数，将函数代码提前植入到调用处，泛型代码在编译后悔直接使用实际类型来代替函数中的泛型。这就可以实现泛型实化。
+
+```kotlin
+inline fun <reified T> getGenericType(): Class<T> {
+    return T::class.java
+}
+
+fun main(args: Array<String>) {
+    val genericType = getGenericType<String>()
+    println(genericType)
+}
+```
+
+以上代码`getGenericType`函数就可以获取泛型的实际类型。
+
+使用内联函数（`inline`），声明泛型的地方使用`reified`关键字。
+
+
+
+
+
+#### 协变
+
+
+
+#### 逆变
+
+
+
+
+
+
 
 
 
