@@ -16,7 +16,7 @@ tags:
 
 
 
-**基本属性**
+### 基本属性
 
 ~~~java
 layout_constraintRight_toLeftOf
@@ -32,7 +32,7 @@ layout_constraintBaseline_toBaselineOf
 
 
 
-**宽高属性**
+#### 宽高属性
 
 和其他布局一样，可以用l`layout_width`和`layout_height`设置宽高。可以使用`wrap_content` `match_parent` 或者具体的值。这里需要注意的 0dp  
 
@@ -60,7 +60,7 @@ layout_constraintBaseline_toBaselineOf
 
 ![](https://tva1.sinaimg.cn/large/006y8mN6ly1g6n9o4y1f5j309r0iitar.jpg)
 
-以上这种情况0dp会直接充满屏幕，效果=`match_parent` ，但是0dp也是受到条件约束的
+以上这种情况0dp会直接充满屏幕，效果等于`match_parent` ，但是0dp也是受到条件约束的
 
 ~~~xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -98,7 +98,7 @@ layout_constraintBaseline_toBaselineOf
 
 
 
-**宽高比**
+### 宽高比
 
 一般在做banner的会遇到这样的需求
 
@@ -134,7 +134,7 @@ app:layout_constraintDimensionRatio的值里面的H和W是什么意思。加上h
 不写H，也不写W的情况下， 表示  宽高比
 写了H 和 不写H 效果是一样的，都是 表示  宽高比
 
-**权重**
+### 权重
 
 一般底部的app都是平分宽度，用`LinearLayout`很容易实现
 
@@ -190,7 +190,7 @@ app:layout_constraintDimensionRatio的值里面的H和W是什么意思。加上h
 
 这里三个TextView的宽度都是0并且左右相互依赖，这样就平分整个屏幕的宽度
 
-**单独设置比例**
+### 单独设置比例
 
 `layout_constraintHorizontal_weight` `layout_constraintVertical_weight`
 
@@ -200,7 +200,7 @@ app:layout_constraintDimensionRatio的值里面的H和W是什么意思。加上h
 
 
 
-**bias**
+### bias
 
 bias可以看成一个偏移量，个人感觉实际的应用场景应该不多
 
@@ -242,7 +242,7 @@ bias可以看成一个偏移量，个人感觉实际的应用场景应该不多
 
 
 
-**百分比**
+### 百分比
 
 ~~~xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -282,7 +282,7 @@ bias可以看成一个偏移量，个人感觉实际的应用场景应该不多
 
 
 
-**chain**
+### chain
 
 先看图
 
@@ -474,11 +474,9 @@ bias可以看成一个偏移量，个人感觉实际的应用场景应该不多
 
 
 
-**辅助线GuideLine**
+### 辅助线GuideLine
 
 辅助线有横向的和纵向的，辅助线不会显示到界面上。具体的用法就是在布局中添加辅助线，用辅助线来控制view的位置。
-
-
 
 属性：
 
@@ -528,7 +526,7 @@ bias可以看成一个偏移量，个人感觉实际的应用场景应该不多
 
 
 
-**Barrier**
+### Barrier
 
 `Barrier`和`Guideline`一样，不会被显示 。`Barrier` 包裹了一些控件，它的宽高由包裹的子控件决定。
 
@@ -595,7 +593,7 @@ bias可以看成一个偏移量，个人感觉实际的应用场景应该不多
 
 
 
-**Group**
+### Group
 
 显示或者隐藏多个控件，一般我都是直接用个大布局把他们包起来。在constraintlayout中可以使用`Group`。用法和`Barrier`差不多。但是`Group`没有宽高的概念，所以无法作为其他view的约束参照物。隐藏的时候直接找到控件指定`Gone`就可以了
 
@@ -644,7 +642,7 @@ bias可以看成一个偏移量，个人感觉实际的应用场景应该不多
 
 
 
-**Placeholder 占位**
+### Placeholder 占位
 
 laceholder指的是占位符。在Placeholder中可使用setContent()设置另一个控件的id，使这个控件移动到占位符的位置
 
@@ -699,7 +697,7 @@ laceholder指的是占位符。在Placeholder中可使用setContent()设置另�
 
 
 
-注意
+### 注意
 
 在constraintlayout尽量不要使用`android:visibility="gone"` 一旦这个view消失，那所有跟它有约束关系的view都会消失。可以使用`invisible`代替
 
