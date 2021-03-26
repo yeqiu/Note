@@ -183,3 +183,9 @@ class UserFragment : Fragment() {
 
 
 
+## 资料
+
+[背上Jetpack之Navigation】想去哪就去哪，Android世界的指南针](https://juejin.cn/post/6844904165362270215#heading-0)
+
+
+

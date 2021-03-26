@@ -240,3 +240,11 @@ class App : Application() {
 ## LifeCycle小结
 
 Activity、Fragment、Service和Application都可以使用LifeCycle来感知生命周期的变化。可以通过这个更好的在自定义组件中管理自身的生命周期。
+
+
+
+
+
+## 相关资料
+
+[“终于懂了“系列：Jetpack AAC完整解析（一）Lifecycle 完全掌握！](https://www.jianshu.com/p/728b2345bf0b)
