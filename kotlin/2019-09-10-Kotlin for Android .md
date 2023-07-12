@@ -27,8 +27,7 @@ tags:
 
 ## 开发中的一些问题
 
-
-###startActivity
+### startActivity
 
 ```java
         //in java
