@@ -48,3 +48,30 @@ https://www.saoniuhuo.com/question/detail-2231684.html
 ~~~
 
 https://blog.csdn.net/niuzhucedenglu/article/details/130542999
+
+### 不生成BuildConfig
+
+新版Androd Studio默认不生成BuildConfig
+
+
+
+~~~kotlin
+    buildFeatures{
+        dataBinding = true
+      	//生成BuildConfig
+        buildConfig = true
+    }
+~~~
+
+另外必须要使用jdk17
+
+~~~kotlin
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+~~~
+
