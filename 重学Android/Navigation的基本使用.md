@@ -168,8 +168,242 @@ binding.btBack.setOnClickListener {
 
 ## 元素共享
 
-## 传参
+### fragment to fragment
+
+xml布局中设置transitionName，目标页面也需要设置相同的transitionName
+
+```xml
+<ImageView
+    android:id="@+id/iv_img"
+    android:layout_width="50dp"
+    android:layout_height="50dp"
+    android:transitionName="image"
+    android:src="@mipmap/ic_launcher_round"/>
+```
+
+代码中设置
+
+```kotlin
+binding.btLogin.setOnClickListener {
+
+    //共享元素
+    val extras = FragmentNavigatorExtras(binding.ivImg to "image")
+
+    //跳转动画
+    val navOptions = NavOptions.Builder()
+        .setEnterAnim(R.anim.right_in)
+        .setExitAnim(R.anim.left_out)
+        .setPopEnterAnim(R.anim.right_out)
+        .setPopEnterAnim(R.anim.left_in)
+        .build()
+
+    findNavController().navigate(
+        resId = R.id.main_to_login,
+        args = null,
+        navOptions = navOptions,
+        navigatorExtras = extras
+    )
+}
+```
+
+目标的fragment中设置
+
+```kotlin
+override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    binding.tvName.text = "登录 ${formatCurrentTime()}"
+
+
+    sharedElementEnterTransition = TransitionInflater.from(requireContext())
+        .inflateTransition(R.transition.shared_image)
+
+}
+```
+
+### fragment to activity
+
+布局设置同上，代码中构建 ActivityNavigator.Extras
+
+```kotlin
+binding.btRegister.setOnClickListener {
+    //共享元素
+    val activityOptionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
+        requireActivity(),
+        Pair(binding.ivImg, "image")
+    )
+    val extras: ActivityNavigator.Extras = ActivityNavigator.Extras.Builder()
+        .setActivityOptions(activityOptionsCompat)
+        .build()
+
+    findNavController().navigate(
+        resId = R.id.main_to_register,
+        args = null,
+        navOptions = null,
+        navigatorExtras = extras
+    )
+}
+```
+
+目标页面无需代码设置，只需要在xml中设置transitionName
+
+## SafeArgs 传参
+
+添加插件
+
+在顶层 `build.gradle` 文件中包含以下 `classpath`
+
+```groovy
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+//safe args
+buildscript {
+    dependencies {
+        def nav_version = "2.5.3"
+        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
+    }
+}
+
+plugins {
+    id 'com.android.application' version '7.4.1' apply false
+    id 'com.android.library' version '7.4.1' apply false
+    id 'org.jetbrains.kotlin.android' version '1.8.0' apply false
+}
+```
+
+**应用或模块**的 `build.gradle` 文件中
+
+```groovy
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+  	//safe args
+    id 'androidx.navigation.safeargs.kotlin'
+}
+```
+
+在导航图中添加参数，参数添加在需要参数的fragment标签中
+
+1.目的地添加参数
+
+```xml
+<fragment
+    android:id="@+id/login"
+    android:name="com.yeqiu.navigationapp.LoginFragment">
+
+    <action
+        android:id="@+id/login_to_register"
+        app:destination="@+id/register" />
+
+    <action
+        android:id="@+id/login_to_user"
+        app:destination="@+id/user" />
+
+    <argument
+        android:name="name"
+        android:defaultValue="狗蛋"
+        app:argType="string" />
+    <argument
+        android:name="age"
+        android:defaultValue="18"
+        app:argType="integer" />
+    
+</fragment>
+```
+
+2.同步代码，通过生成的对象来设置参数
+
+```kotlin
+//参数 MainFragmentDirections是生成的类
+val mainToLogin = MainFragmentDirections.mainToLogin("这是一个名字", 20)
+//跳转动画
+val navOptions = NavOptions.Builder()
+    .setEnterAnim(R.anim.right_in)
+    .setExitAnim(R.anim.left_out)
+    .setPopEnterAnim(R.anim.right_out)
+    .setPopEnterAnim(R.anim.left_in)
+    .build()
+//共享元素
+val extras = FragmentNavigatorExtras(binding.ivImg to "image")
+
+findNavController().navigate(
+    mainToLogin.actionId,
+    mainToLogin.arguments,
+    navOptions,
+    extras
+)
+//如果不需要其他的，直传递参数可以使用
+findNavController().navigate(mainToLogin)
+```
+
+3.接受参数
+
+```kotlin
+val LoginFragmentArgs by navArgs<LoginFragmentArgs>()
+binding.tvData.text = "参数 = ${LoginFragmentArgs.name},${LoginFragmentArgs.age}"
+```
 
 
 
 ## 配合BootomNavigationView
+
+activity 布局中配置
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/wechat_nav_host"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:defaultNavHost="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/wechat_bottom_tab"
+        app:navGraph="@navigation/nav_wechat" />
+
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/wechat_bottom_tab"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:menu="@menu/wechat_menu"
+        android:background="@color/white"
+        app:layout_constraintTop_toBottomOf="@+id/wechat_nav_host"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+    
+</androidx.constraintlayout.widget.ConstraintLayout>
+```
+
+**注意：menu中item的id一定要和navGraph中的fragment的id一致**
+
+代码中设置
+
+```kotlin
+override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    setContentView(R.layout.activity_wechat)
+
+    val navHostFragment =
+        supportFragmentManager.findFragmentById(R.id.wechat_nav_host) as NavHostFragment
+    val bottomNavigationView = findViewById<BottomNavigationView>(R.id.wechat_bottom_tab)
+    bottomNavigationView.setupWithNavController(navHostFragment.navController)
+
+}
+```
+
+
+
+## DialogFragment
+
+和普通的fragment用法差不多，只不过在导航图声明时使用dialog标签
+
+```xml
+<dialog
+    android:id="@+id/dialog"
+    android:name="com.yeqiu.navigationapp.SimpleDialogFragment" />
+```
