@@ -57,11 +57,8 @@ android {
         targetSdkVersion 33
         versionCode 1
         versionName "1.1.1"
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
-
-
     }
 
     buildTypes {
@@ -124,7 +121,9 @@ ext {
 }
 ~~~
 
-在kts中可以使用buildSrc
+### buildSrc
+
+在kts中推荐使用buildSrc代替ext的方式
 
 在项目根目录下创建buildSrc文件夹，在创建一个build.gradle.kts
 
@@ -150,7 +149,7 @@ defaultConfig {
     applicationId = "com.yeqiu.ktsdemo"
     minSdk = 24
     targetSdk = 33
-    //这里引用了全局变量
+    //这里引用了Version中的变量
     versionCode = Version.versionCode
     versionName = Version.versionName
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -163,17 +162,15 @@ defaultConfig {
 
 一般的商业项目中很创建很多module，通常会将多个module打包到一个app中。每个module都有自己的build文件，内部的配置大多也都差不多。这里可以直接创建一个通用的build，然后各个module引用这个文件。
 
-使用kts我没有找到很好的办法。
+使用kts我没有找到很好的办法，暂时还是使用gradle文件
 
- commonConfig.gradle 
+在根目录创建  `commonConfig.gradle `
 
 ~~~groovy
 //这是一个gradle 文件
 //配置各个module共用的参数
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
-
-
 
 android {
     compileSdk 33
@@ -230,6 +227,72 @@ dependencies {
 }
 ~~~
 
+也可以在`commonConfig.gradle `中使用buildSrc中定义的常量
+
+~~~groovy
+//这是一个gradle 文件
+//配置各个module共用的参数
+//apply plugin: 'kotlin-android'
+//apply plugin: 'kotlin-kapt'
+
+android {
+    compileSdk AndroidOptions.compileSdk
+
+    defaultConfig {
+        minSdk AndroidOptions.minSdk
+        targetSdk AndroidOptions.targetSdk
+        versionCode AndroidOptions.versionCode
+        versionName AndroidOptions.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false //混淆与否
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            //混淆脚本
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaOptions.sourceCompatibility
+        targetCompatibility JavaOptions.targetCompatibility
+    }
+
+    kotlinOptions {
+        jvmTarget = KotlinOptions.jvmTarget
+    }
+
+    buildFeatures {
+        viewBinding = true
+    }
+
+}
+
+dependencies {
+
+    implementation(AndoridLibrarys.coreKtx)
+    implementation(AndoridLibrarys.androidxAppcompat)
+    implementation(AndoridLibrarys.activityKtx)
+    implementation(AndoridLibrarys.fragmentKtx)
+    implementation(AndoridLibrarys.lifecycleLivedata)
+    implementation(AndoridLibrarys.lifecycleViewmodel)
+
+}
+~~~
+
+
+
+> 以上 AndroidOptions、JavaOptions、AndoridLibrarys都是定义在buildSrc中的单例对象
+>
+> 注意：一定要使用首字母大小，我在使用首字母小写时编译后报错，暂时还不清楚什么原因
+
+
+
+
+
 配置后可以在app或者其他的module中引用
 
 app中引用公共配置，build里最终代码是这样的
@@ -255,3 +318,8 @@ dependencies {
 }
 ~~~
 
+
+
+### demo传送门
+
+[KtsDemo](https://gitee.com/yeqiu000/kts-demo)

@@ -1,17 +1,3 @@
----
-layout:     post  
-title:    	Kotlin for Android 入门
-subtitle:   Kotlin入门
-date:       2019-09-10
-author:     小卷子
-header-img: img/tag-bg.jpg
-catalog: true
-tags:
-    - 标签
----
-
-
-
 [TOC]
 
 
@@ -19,13 +5,6 @@ tags:
 ## 前言
 
 最近看了kotlin，顺便再做一些kotlin的练习。然鹅练习过程遇到好多问题。
-
-
-
-
-
-
-## 开发中的一些问题
 
 ### startActivity
 
@@ -54,31 +33,6 @@ new Intent(context,MainActivity.class);需要的参数是1.上下文 2.class文�
 
 
 关于内部类中使用MainActivity.this改成这种方式`this@MainActivity`
-
-
-
-### findViewById
-
-`findViewById`这玩意现在可以直接省略。
-
-studio 3.0以上会自动添加相关的依赖，开启自动导包后直接在代码中使用view的id即可。
-
-原理：
-
-[Kotlin 不再使用 findViewById 的原理](https://blog.csdn.net/hust_twj/article/details/80290362)
-
-
-
-### 关于set和get
-
-  可以直接使用属性，无需再调用set和get方法。其实内部还是会调用set get方法
-
-```java
-        //setText
-        message.text = ""
-        //getText
-        val text = message.text
-```
 
 
 
@@ -136,7 +90,7 @@ fun main() {
 
 
 
-### 添加kotlin文件夹
+### java文件夹修改为kotlin文件夹
 
 1.在 src/main 下新建 kotlin文件夹
 
@@ -176,20 +130,19 @@ public class Application {
 }
 ~~~
 
-这里其实Application有些特殊。它的onCreate一定会被执行。
+kotlin中的写法
 
 ~~~kotlin
 class App : Application() {
-
-    companion object {
-     		@JvmStatic
-        lateinit var instance: App
-            private set
+      companion object {
+        private lateinit var instance: App
+        fun getInstance(): App {
+            return instance
+        }
     }
-
-    override fun onCreate() {
+      override fun onCreate() {
         super.onCreate()
-        inst = this
+        instance = this
     }
 }
 ~~~
@@ -239,8 +192,6 @@ class Test{
     }
 ~~~
 
-
-
 ### 可变参数传递
 
 java中用参数类型...代替 `Object... objects` ，kotlin中使用 `vararg anys:Any`
@@ -287,4 +238,22 @@ activity as? NewActivity?
 1.activity as? NewActivity 这种情况，不会抛出异常。虽然你as?后面期望转换为NewActivity类型(不可空类型)，但是要注意的是由于是as?，所以转换的结果是可空的，必须用NewActivity?类型变量去接收。这种情况比较特殊，一般用在Java调用kotlin中的一个方法，虽然你在kotlin中声明接收一个非空参数，但是java可能给你传入个null，你使用as?转换会比较安全。
 2.activity as NewActivity? 这种情况，activity为null时，强转失败，会抛出异常。如果顺利强转，由于你as后面的类型是可空的，所以转换的结果必须用NewActivity?类型变量去接收
 3.activity as? NewActivity? 这种情况activity为null时也不会抛出异常，无论是因为强转失败还是由于as?的类型声明，转换的结果都必须用NewActivity?类型变量去接收
+
+
+
+### try catch的简便写法
+
+~~~kot
+        runCatching {
+            "try代码块中的代码"
+        }.onSuccess {
+            "没有异常"
+        }.onFailure {
+            "发生异常"
+        }.also {
+            "finally"
+        }
+~~~
+
+
 

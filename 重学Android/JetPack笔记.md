@@ -1358,33 +1358,29 @@ continuation.enqueue()
 
 
 
-### **Hilt**
-
-
-
 ### Paging
-
-#### 简介
 
 [Paging文档传送门](https://developer.android.google.cn/jetpack/androidx/releases/paging?hl=zh-cn)
 
-### Hilt 
+[Jetpack新成员，Paging3从吐槽到真香](https://blog.csdn.net/guolin_blog/article/details/114707250?ops_request_misc=&request_id=e539560cd66546b1b720d91c49f0aa73&biz_id=&utm_medium=distribute.pc_search_result.none-task-blog-2~blog~koosearch~default-1-114707250-null-null.268^v1^control&utm_term=paging&spm=1018.2226.3001.4450)
 
-#### 简介
+### Hilt 
 
 [Hilt文档传送门](https://developer.android.google.cn/jetpack/androidx/releases/hilt?hl=zh-cn)
 
 
 
-
-
 https://juejin.cn/post/6850418118289227783#heading-10
+
+[Jetpack新成员，一篇文章带你玩转Hilt和依赖注入](https://blog.csdn.net/guolin_blog/article/details/109787732)
 
 
 
 ### APP Startup
 
 https://juejin.cn/post/6898738809895125006
+
+[Jetpack新成员，App Startup一篇就懂](https://blog.csdn.net/guolin_blog/article/details/108026357?ops_request_misc=&request_id=a183f941534f4666beffcee5540ed294&biz_id=&utm_medium=distribute.pc_search_result.none-task-blog-2~blog~koosearch~default-1-108026357-null-null.268^v1^control&utm_term=startup&spm=1018.2226.3001.4450)
 
 ### 其他
 

@@ -156,6 +156,14 @@ binding.btBack.setOnClickListener {
 }
 ```
 
+### 关于navigateUp()
+
+navigateUp()并不完全等于返回键
+
+`navigateUp()` 方法的默认行为是尝试返回到上一级目的地，如果没有上一级目的地，则不会执行任何操作。
+
+
+
 ## popUpTo 和 popUpToInclusive
 
 `popUpTo` 和 `popUpToInclusive` 是用于控制导航回退行为的属性。结合使用，可以定义当用户导航回指定目的地时，应该如何处理导航堆栈。
@@ -166,10 +174,19 @@ binding.btBack.setOnClickListener {
 
 
 
-## 元素共享
-
-## 传参
 
 
+## 原理解析
 
-## 配合BootomNavigationView
+### 导航图是如何被加载的
+
+
+
+### 默认启动页如何被加载的
+
+
+
+### 为什么fragment切换回导致生命周期重建
+
+
+
