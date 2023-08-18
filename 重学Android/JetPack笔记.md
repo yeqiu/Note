@@ -1364,16 +1364,6 @@ continuation.enqueue()
 
 [Jetpack新成员，Paging3从吐槽到真香](https://blog.csdn.net/guolin_blog/article/details/114707250?ops_request_misc=&request_id=e539560cd66546b1b720d91c49f0aa73&biz_id=&utm_medium=distribute.pc_search_result.none-task-blog-2~blog~koosearch~default-1-114707250-null-null.268^v1^control&utm_term=paging&spm=1018.2226.3001.4450)
 
-### Hilt 
-
-[Hilt文档传送门](https://developer.android.google.cn/jetpack/androidx/releases/hilt?hl=zh-cn)
-
-
-
-https://juejin.cn/post/6850418118289227783#heading-10
-
-[Jetpack新成员，一篇文章带你玩转Hilt和依赖注入](https://blog.csdn.net/guolin_blog/article/details/109787732)
-
 
 
 ### APP Startup
@@ -1381,6 +1371,176 @@ https://juejin.cn/post/6850418118289227783#heading-10
 https://juejin.cn/post/6898738809895125006
 
 [Jetpack新成员，App Startup一篇就懂](https://blog.csdn.net/guolin_blog/article/details/108026357?ops_request_misc=&request_id=a183f941534f4666beffcee5540ed294&biz_id=&utm_medium=distribute.pc_search_result.none-task-blog-2~blog~koosearch~default-1-108026357-null-null.268^v1^control&utm_term=startup&spm=1018.2226.3001.4450)
+
+#### 简单使用
+
+主要适用于依赖库内部自动初始化，内部使用ContentProvider来实现。
+
+1.实现App Startup库的Initializer接口
+
+~~~kotlin
+class EasyAndroidInitializer:Initializer<Unit> {
+
+    override fun create(context: Context) {
+        EasyAndroid.init(context)
+    }
+
+    override fun dependencies(): List<Class<out Initializer<*>>> {
+        return emptyList()
+    }
+}
+~~~
+
+dependencies()方法表示，是否还依赖于其他的初始化，如果有的话，就在这里进行配置，App Startup会保证先初始化依赖的Initializer，然后才会初始化当前的EasyAndroidInitializer。不需要的话直接返回一个emptyList()。
+
+
+
+2.配置到AndroidManifest.xml当中
+
+~~~xml
+    <application>
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="com.yeqiu.easyandroid.init.EasyAndroidInitializer"
+                android:value="androidx.startup" />
+        </provider>
+        
+    </application>
+~~~
+
+上述配置，我们能修改的地方并不多，只有meta-data中的android:name部分我们需要指定成我们自定义的Initializer的全路径类名，其他部分都是不能修改的。
+
+当App启动的时候会自动执行App Startup库中内置的ContentProvider，并在它的ContentProvider中会搜寻所有注册的Initializer，然后逐个调用它们的create()方法来进行初始化操作。
+
+
+
+#### 延时初始化
+
+在app的清单文件中
+
+~~~xml
+<application ...>
+
+	<provider
+		android:name="androidx.startup.InitializationProvider"
+		android:authorities="${applicationId}.androidx-startup"
+		android:exported="false"
+		tools:node="merge">
+		<meta-data
+			android:name="com.yeqiu.easyandroid.init.EasyAndroidInitializer"
+			tools:node="remove" />
+	</provider>
+	
+</application>
+
+~~~
+
+仅仅在的meta-data当中加入了一个tools:node="remove"的标记。这样打包后appstartup机会忽略EasyAndroidInitializer，之后需要手动初始化调用
+
+~~~kotlin
+   AppInitializer.getInstance(this)
+            .initializeComponent(EasyAndroidInitializer::class.java)
+~~~
+
+### Hilt 
+
+[Hilt文档传送门](https://developer.android.google.cn/jetpack/androidx/releases/hilt?hl=zh-cn)
+
+[Jetpack新成员，一篇文章带你玩转Hilt和依赖注入](https://blog.csdn.net/guolin_blog/article/details/109787732)
+
+#### 简单使用
+
+我主要是在ViewModel中使用Hilt自动注入Repository
+
+1.添加依赖
+
+添加 plugins
+
+```kotlin
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+plugins {
+    id("com.android.application") version "8.1.0-rc01" apply false
+    id("org.jetbrains.kotlin.android") version "1.8.0" apply false
+    id("com.android.library") version "8.1.0-rc01" apply false
+    //hilt
+    id("com.google.dagger.hilt.android") version "2.46.1" apply false
+}
+```
+
+添加依赖和kapt
+
+~~~kotlin
+plugins {
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id("kotlin-kapt")
+    //hilt
+    id("com.google.dagger.hilt.android")
+}
+~~~
+
+~~~kotlin
+    //hilt
+    implementation("com.google.dagger:hilt-android:2.46.1")
+    kapt("com.google.dagger:hilt-android-compiler:2.46.1")
+~~~
+
+
+
+2.代码
+
+Repository的构造函数使用@Inject
+
+```kotlin
+class MainRepository @Inject constructor(){
+    fun getAccount():String{
+        val account by MMKV("")
+        return account
+    }
+}
+```
+
+ViewModel类使用@HiltViewModel注解，构造函数使用@Inject
+
+```kotlin
+@HiltViewModel
+class MainViewModel @Inject constructor(val repository: MainRepository) :ViewModel() {
+    
+    fun getAccount()=repository.getAccount()
+    
+}
+```
+
+
+
+在Activity中使用@AndroidEntryPoint注解，正常创建viewModel即可
+
+```kotlin
+@AndroidEntryPoint
+class MainActivity : AppCompatActivity() {
+     val  viewModel: MainViewModel by viewModels()
+}
+```
+
+**要注意App中也需要添加注解@HiltAndroidApp**
+
+~~~kotlin
+@HiltAndroidApp
+class App:Application() {
+
+    override fun onCreate() {
+        super.onCreate()
+    }
+
+}
+~~~
+
+
 
 ### 其他
 
