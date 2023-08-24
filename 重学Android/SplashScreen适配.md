@@ -217,6 +217,18 @@ implementation("androidx.core:core-splashscreen:1.1.0-alpha01")
 
 - 也可以根据逻辑直接跳转到广告的Activity中
 
+
+
+## 关于图标裁剪变形
+
+使用`windowSplashScreenAnimatedIcon`如果发现图标变形，可能是因为没有做图标的适配。具体看这篇博客[Android应用图标微技巧，8.0系统中应用图标的适配](https://guolin.blog.csdn.net/article/details/79417483)
+
+
+
+
+
+
+
 ## 相关资源
 
 [正确实践Jetpack SplashScreen API —— 在所有Android系统上使用总结，内含原理分析](https://juejin.cn/post/7019839767441309733#heading-15)
