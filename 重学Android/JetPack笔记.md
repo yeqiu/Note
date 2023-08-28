@@ -229,13 +229,9 @@ LiveData通常和ViewModel配合使用，当数据发生变化，可以通知vie
 
 
 
-#### liveData.value 返回值是一个可空类型的，每次使用都需要做非空的判断
+#### Livedata 可读写封装
 
-在使用 MutableLiveData 时，通过 setValue() 和 postValue() 方法来设置 LiveData 的值，因为可以设置Value所以会是空
-
-但是 LiveDat.value 不同，它没有setValue() 和 postValue() ，在初始化时就可以确定 LiveData 的值不为空。
-
-它们配合就可以在使用时排除非空判断
+Livedata的数据只读，不可变的。如果使用MutableLiveData会增加外部修改的风险。可以结合使用
 
 ~~~kotlin
 class MyViewModel : ViewModel() {
