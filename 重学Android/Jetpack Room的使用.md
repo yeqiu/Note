@@ -1,0 +1,301 @@
+# Jetpack Room的使用
+
+## 简单介绍
+
+使用注解来标记，table，dao，Database
+
+- @Entity:对应表字段
+- @Dao:用于操作表，增删改查
+- @Database:数据库标识
+
+
+
+## 依赖
+
+```kotlin
+    //room
+    val roomVersion = "2.5.0"
+    val roomKtx = "androidx.room:room-ktx:$roomVersion"
+    val roomcompiler = "androidx.room:room-compiler:$roomVersion" //kapt
+```
+
+我查询时候官网给出的依赖是
+
+~~~groovy
+    def room_version = "2.5.0"
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+~~~
+
+如果需要结合协程使用的话，需要使用ktx库
+
+## 简单使用
+
+### 创建表
+
+~~~kotlin
+@Entity(tableName = "RoomData")
+data class RoomData(
+    @ColumnInfo(name = "text")
+    var text:String,
+    @ColumnInfo(name = "time")
+    var time:Long){
+    //主键，自增
+    @PrimaryKey(autoGenerate = true)
+    var id:Int = 0
+}
+~~~
+
+### 创建Dao
+
+```kotlin
+@Dao
+interface RoomDao {
+
+    @Insert
+    suspend fun insert(vararg roomData: RoomData)
+
+    @Delete
+    suspend fun delete(roomData: RoomData)
+
+    @Update
+    suspend fun update(roomData: RoomData)
+    
+    @Query("SELECT * FROM RoomData ORDER BY word ASC")
+    fun findAll(): List<RoomData>
+
+    @Query("DELETE FROM RoomData")
+    fun delAll()
+}
+```
+
+以上的注解只是简单的写法，删除和更新都是根据id来操作的，如果需要更换条件，需要使用@Query注解并编写SQL语句。如以上`delAll()`
+
+**注意：dao需要声明为接口，在编译后room会生成子类**
+
+### 创建Database
+
+```kotlin
+@Database(entities = [RoomData::class], version = 1, exportSchema = true)
+abstract class RoomManager : RoomDatabase() {
+}
+```
+
+@Database注解中标明，需要生成的表，当前版本号，是否需要Schema
+
+### 初始化Database
+
+```kotlin
+@Database(entities = [RoomData::class], version = 1, exportSchema = true)
+abstract class RoomManager : RoomDatabase() {
+
+    abstract fun getDao(): RoomDao
+
+    companion object {
+
+        @Volatile
+        private lateinit var instance: RoomManager
+
+        fun getInstance(): RoomManager {
+            if (!::instance.isInitialized) {
+                //创建Database 
+                instance = Room.databaseBuilder(
+                    App.getInstance(),
+                    RoomManager::class.java,
+                  	//数据库名
+                    "prometheus_db"
+                )
+                    //允许在主线程操作
+                    .allowMainThreadQueries()
+                    .build()
+            }
+            return instance
+        }
+    }
+}
+```
+
+### 简单使用
+
+1.通过Database获取dao对象，见上例中的RoomManager
+
+2.调用dao的增删改查函数，实现操作
+
+3.可以结合协程添加suspend
+
+
+
+## 结合Livedata
+
+dao中可以直接返回livedata类型的返回值
+
+```kotlin
+@Query("SELECT * FROM RoomData")
+fun findAll(): LiveData<List<RoomData>>
+```
+
+
+
+## 关于Livedata的value是null
+
+我在刚开始使用返回Livedata时候，获取到的value一直是null。这是因为room查询时使用异步执行，所以实际上获取的是Livedata的容器，内部不一定有值。可以在获取到livedata时，观察Livedata的变化。
+
+[android room返回livedata类型时null问题](https://blog.csdn.net/Nigel_Zhou/article/details/85176774)
+[关于android：Room数据库Livedata getValue()返回null](https://www.codenong.com/49978066/)
+
+
+
+## 升级
+
+升级使用 Migration，Migration放到Database的伴生对象中，可以在初始化Database时候执行升级
+
+1.声明一个 Migration 对象，写好升级的sql语句
+
+```kotlin
+        companion object {
+            //从1升级到2
+            val migration_1_2: Migration by lazy {
+                object : Migration(1, 2) {
+                    override fun migrate(database: SupportSQLiteDatabase) {
+                        val sql = "ALTER TABLE User ADD COLUMN phone TEXT NOT NULL DEFAULT ''"
+                        database.execSQL(sql)
+
+                    }
+                }
+            }
+        }
+```
+
+2.在实体中添加字段
+
+```kotlin
+@Entity
+data class User(
+    @ColumnInfo(name = "name") var name: String,
+    @ColumnInfo(name = "age") val age: Int,
+    @ColumnInfo(name = "gender") val gender: Boolean,
+  	//新增字段 
+    @ColumnInfo(name = "phone") val phone: String = ""
+) {
+    @PrimaryKey(autoGenerate = true)
+    var id: Int = 0
+}
+```
+
+3.修改数据库版本
+
+```kotlin
+@Database(entities = [User::class], version = 2)
+abstract class TestDatabase : RoomDatabase() {
+  ...
+}
+```
+
+4.创建Database时添加Migration
+
+```kotlin
+//创建testDatabase
+testDatabase = Room.databaseBuilder(
+    this,
+    TestDatabase::class.java, "test_db"
+)
+    .allowMainThreadQueries()
+    //添加升级配置
+    .addMigrations(TestDatabase.migration_1_2)
+    .build()
+```
+
+#### 跨版本升级
+
+升级的Migration一定要保存好，每次升级可能都会用到。Room升级是根据Migration逐个版本升级
+
+例：
+
+从版本1升级到版本3
+
+- 如果有1到3的Migration，Room会直接执行这个
+- 没有1到3的Migration，Room会先执行1到2，然后直接2到3
+
+#### 升级的异常处理
+
+升级时候发生异常会抛出`IllegalArgumentException`异常，在创建Database时添加fallbackToDestructiveMigration。会在出现异常时重建表结构，但是会丢失以前的数据。从高版本回到到低版本也会发生异常。
+
+```kotlin
+testDatabase = Room.databaseBuilder(
+    this,
+    TestDatabase::class.java, "test_db"
+)
+    //允许在主线程执行sql
+    .allowMainThreadQueries()
+    //添加升级配置
+    .addMigrations(TestDatabase.migration_1_2)
+    //升级异常，重建表
+    .fallbackToDestructiveMigration()
+    .build()
+```
+
+### 
+
+## 小坑
+
+我在升级时候一开始的sql语句是`val sql = "ALTER TABLE user ADD COLUMN phone TEXT DEFAULT ''"`已经指定了默认值，但是升级时一直报错，日志显示字段类型不匹配。后来修改为`   val sql = "ALTER TABLE User ADD COLUMN phone TEXT NOT NULL DEFAULT ''"`增加了`NOT NULL`的限制就好了。以下是GPT的回复
+
+~~~kotlin
+如果您在添加新字段时已经指定了默认值，那么在新的表格中，该字段将自动填充默认值，因此在这种情况下添加 `NOT NULL` 约束似乎是多余的。然而，在某些情况下，Room 可能不会正确地遵循默认值，并从而引发异常，这种情况下添加 `NOT NULL` 约束可以确保该字段在任何情况下都存在一个非空值。因此，如果您不希望在代码中添加空值检查或不确定是否可以对新字段正确设置默认值，请同时指定 `NOT NULL` 和 `DEFAULT` 约束。
+
+在您的情况下，由于您指定了默认值，从技术上讲添加 "NOT NULL" 约束确实是多余的。但是为了避免潜在的问题，我建议您在上述SQL语句中同时指定 "NOT NULL" 和 "DEFAULT" 约束。
+
+如果您还有其他疑问，欢迎随时询问。
+~~~
+
+#### 
+
+## 销毁和重建
+
+在sqlLite中修改表结构很麻烦，如果表中很多个字段都需要修改，可以使用销毁和重建。
+
+步骤大致为
+
+- 创建一个符合表结构的临时表
+- 将旧表的数据复制到临时表
+- 删除旧表
+- 将临时表重命名为旧表名
+
+这是个纯sql操作，在升级的Migration中写上sql语句。sql可以参照Schema中的sql。
+
+
+
+## 预填充数据库
+
+Room允许再打包时候将安装包内的数据库文件移植到手机中。
+
+需要预选准备数据库，在创建Database 通过createFromAsset添加
+
+~~~kotlin
+        testDatabase = Room.databaseBuilder(
+            this,
+            TestDatabase::class.java, "test_db"
+        )
+            //允许在主线程执行sql
+            .allowMainThreadQueries()
+            //添加升级配置
+            .addMigrations(TestDatabase.migration_1_2)
+            //升级异常，重建表
+            .fallbackToDestructiveMigration()
+						//预置数据库
+            .createFromAsset("path")
+            .build()
+~~~
+
+
+
+## 资料
+
+[google的demo](https://developer.android.google.cn/codelabs/android-room-with-a-view-kotlin?hl=zh-cn#0)
+
+[文本的demo](https://gitee.com/yeqiu000/FastMvvm)
+
+
+
+
+

@@ -369,7 +369,7 @@ plugins {
 
 在任意类中新建设置图片的方法，使用注解 `@BindingAdapter(value = ["android:imgUrl"])`
 
-**注意：定义的方法必须是在半生对象内，或者是顶层函数。也就说方法必须是静态的。一定要添加@JvmStatic**
+**注意：定义的方法必须是在伴生对象内，或者是顶层函数。也就说方法必须是静态的。一定要添加@JvmStatic**
 
 ~~~kotlin
         companion object{
@@ -526,10 +526,6 @@ class EditTextBindingActivity:AppCompatActivity() {
 重点是 ` binding.lifecycleOwner =this`，一定要给BindingBinding设置lifecycleOwner。否则就只能监听livedata的变化，无法同步到其他控件上。
 
 
-
-#### 转换器
-
-todo
 
 ### Room
 
@@ -1449,7 +1445,7 @@ dependencies()方法表示，是否还依赖于其他的初始化，如果有的
 
 [Jetpack新成员，一篇文章带你玩转Hilt和依赖注入](https://blog.csdn.net/guolin_blog/article/details/109787732)
 
-#### 简单使用
+#### 简单使用(ViewModel中注入Repository)
 
 我主要是在ViewModel中使用Hilt自动注入Repository
 

@@ -1,4 +1,14 @@
-# CameraX的使用
+# Jetpack CameraX的使用
+
+## 简单流程
+
+1.使用PreviewView实现预览
+
+2.申请必要的权限，摄像头，录音，本地存储
+
+3.通过ProcessCameraProvider创建相机提供者对象，添加监听。监听内部构建预览对象，选择前后摄像头，构建ImageCapture(拍照),VideoCapture(录像),最后绑定到Lifecycle
+
+
 
 ## 依赖
 
