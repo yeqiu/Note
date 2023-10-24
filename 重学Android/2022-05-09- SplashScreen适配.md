@@ -227,6 +227,26 @@ implementation("androidx.core:core-splashscreen:1.1.0-alpha01")
 
 
 
+## 使用图片作为闪屏
+
+目前我没发现如何在SplashScreen中使用图片作为闪屏 
+
+
+
+可以使用下面的theme
+
+```xml
+<style name="SplashTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <item name="windowNoTitle">true</item>
+    <item name="android:windowNoTitle">true</item>
+    <item name="android:windowFullscreen">true</item>
+    <item name="android:windowBackground">@drawable/bg_splash</item>
+    <item name="android:windowIsTranslucent">true</item>
+</style>
+```
+
+使用了windowFullscreen，屏蔽android12自带的闪屏。
+
 
 
 ## 相关资源
