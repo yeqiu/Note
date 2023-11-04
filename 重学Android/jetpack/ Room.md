@@ -1,14 +1,14 @@
 # Jetpack Room的使用
 
-## 简单介绍
+## 简介
+
+数据操作，[Room文档传送门](
 
 使用注解来标记，table，dao，Database
 
 - @Entity:对应表字段
 - @Dao:用于操作表，增删改查
 - @Database:数据库标识
-
-
 
 ## 依赖
 
@@ -30,6 +30,12 @@
 如果需要结合协程使用的话，需要使用ktx库
 
 ## 简单使用
+
+三个关键注解
+
+- @Entity:对应表字段
+- @Dao:用于操作表，增删改查
+- @Database:数据库标识
 
 ### 创建表
 
@@ -234,7 +240,47 @@ testDatabase = Room.databaseBuilder(
     .build()
 ```
 
-### 
+##  Schema文件
+
+数据库在升级时可以导出一个Schema文件，这是一个json文件。包含数据库的基本信息。包含数据库历史变更情况等，主要用于排查错误。
+
+添加配置
+
+```kotlin
+//exportSchema默认就是true
+@Database(entities = [User::class], version = 2, exportSchema = true)
+```
+
+这里我没做测试，以下是GPT对Schema的描述
+
+~~~kotlin
+当您使用 Android Studio 自带的 Schema 组件来生成/导出 Room 的 Schema 文件时，默认情况下（在没有额外配置的情况下），这些文件会被保存在您的应用模块（通常是 `app`）的根目录下的 `schemas` 文件夹中。
+
+例如，假设您的应用模块名为 `app`，则 Room 的 Schema 文件默认保存在 `app/schemas` 文件夹中。
+
+如果您想在 Gradle 中进行自定义配置，则可以编辑您应用模块的 `build.gradle` 文件，并在 `room` 字段下设置 `schemaLocation` 属性，以指定 Room 应该将 Schema 文件导出到哪个位置。
+
+例如，如果您想将 Schema 文件保存在 `app/db` 文件夹中，可以将以下代码添加到您应用模块的 `build.gradle` 文件中：
+
+android {
+    defaultConfig {
+        // ...
+    }
+     kapt {
+        arguments {
+            arg("room.schemaLocation", "$projectDir/schemas")
+        }
+    }
+}
+
+在上述代码中，`"$projectDir/app/db"` 指向应用程序的根目录下的 `app/db` 文件夹。
+
+如果您将 `schemaLocation` 属性设置为 `null` 或空字符串，则视为禁用 Schema 导出，即 Room 不会生成 Schema 文件。
+
+希望这些信息能够帮助到您，如果您还有其他问题，请随时向我提问。
+~~~
+
+
 
 ## 小坑
 

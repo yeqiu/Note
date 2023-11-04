@@ -1,0 +1,277 @@
+#  Jetpack DataBinding的使用
+
+#### 简介
+
+视图双向绑定 [Databinding文档传送门](https://developer.android.google.cn/jetpack/androidx/releases/databinding?hl=zh-cn)
+
+#### 使用示例
+
+1.开启DataBinding，在app modul的build文件中开启
+
+~~~groovy
+android {
+		 ...
+    dataBinding {
+        enable = true
+    }
+}
+~~~
+
+2.布局文件中生成模板，根标签使用layout。在控件中使用@{变量名.属性}
+
+~~~xml
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="user"
+            type="com.yeqiu.jetpack.DataBindActivity1.User" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".MainActivity">
+        
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:text="@{user.name}"
+            android:textColor="@color/black"
+            android:textSize="28sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/iv_img"
+            tools:text="姓名" />
+      
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
+~~~
+
+3.创建databinding对象
+
+~~~kotlin
+        val dataBinding = ActivityDatabindingBinding.inflate(layoutInflater)
+        setContentView(dataBinding.root)
+        dataBinding.user = User("亚索","世间万般兵刃，唯有过往伤人最深")
+~~~
+
+
+
+#### 点击事件
+
+和引用对象差不多
+
+~~~xml
+    <data>
+        <!--引用对象-->
+        <variable
+            name="user"
+            type="com.yeqiu.jetpack.DataBindActivity1.User" />
+
+        <!--处理点击事件-->
+        <variable
+            name="onClickListener"
+            type="com.yeqiu.jetpack.DataBindActivity1.DataBindClickListener" />
+    </data>
+~~~
+
+~~~kotlin
+  dataBinding.onClickListener=DataBindClickListener()  
+	inner class DataBindClickListener {
+
+        fun onButtonClick(view: View) {
+
+            showToast("点击按钮")
+        }
+    }
+~~~
+
+
+
+#### 自定义BindingAdapter 加载图片
+
+1.需要先添加 kapt
+
+~~~groovy
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+  	//添加kapt
+    id 'kotlin-kapt'
+}
+~~~
+
+2.设置BindingAdapter
+
+在任意类中新建设置图片的方法，使用注解 `@BindingAdapter(value = ["android:imgUrl"])`
+
+**注意：定义的方法必须是在伴生对象内，或者是顶层函数。也就说方法必须是静态的。一定要添加@JvmStatic**
+
+~~~kotlin
+        companion object{
+            @JvmStatic
+            @BindingAdapter(value = ["android:imgUrl"])
+            fun setUserPhoto(
+                iView: ImageView,
+                imageUrl: String
+            ) {
+                Picasso.get().load(imageUrl)
+                    .into(iView)
+            }
+        }
+~~~
+
+ @BindingAdapte的值是可变参数，可以设置多个 
+
+~~~kotlin
+@BindingAdapter(
+    value = ["android:imgUrl", "android:gender"],
+    requireAll = false
+)
+~~~
+
+`android:imgUr` 这种写法在xml中引用时使用
+
+~~~xml
+ android:imgUrl="@{url}"
+~~~
+
+也可以不添加android，直接使用
+
+~~~kotlin
+@BindingAdapter(
+    value = ["imgUrl", "gender"],
+    requireAll = false
+)
+~~~
+
+这种写法在xml中引用时使用
+
+~~~kotlin
+app:imgUrl="@{url}"
+~~~
+
+
+
+#### 双向绑定
+
+使用 BaseObservable
+
+~~~kotlin
+    class EditBinding:BaseObservable(){
+       @get:Bindable
+       var name:String="defName"
+        set(value) {
+            field = value
+          	//通知数据发生变化
+            notifyPropertyChanged(BR.name)
+            value.log()
+        }
+    }
+~~~
+
+editBinding.name
+2.在xml中使用  android:text="@={}"
+
+~~~xml
+        <EditText
+            android:id="@+id/edit"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:textSize="20sp"
+            android:text="@={editBinding.name}"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btn" />
+~~~
+
+3.传入绑定对象
+
+~~~kotlin
+        //一定要设置 BaseObservable
+        dataBinding.editBinding= EditBinding()
+~~~
+
+
+
+#### EditText双向绑定demo
+
+Demo：EditText的文字发生变化，显示到TextView上
+
+
+
+~~~xml
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <variable
+            name="viewModel"
+            type="com.yeqiu.jetpack.EditTextBindingActivity.EditViewModel"/>
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="请输入"
+            android:text="@={viewModel.str}"/>
+
+         <TextView
+             android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{viewModel.str}"/>
+
+    </LinearLayout>
+</layout>
+~~~
+
+
+
+```kotlin
+class EditTextBindingActivity:AppCompatActivity() {
+    
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val binding = ActivityEditBindingBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        val viewModel = createViewModel<EditViewModel>()
+        binding.viewModel = viewModel
+        binding.lifecycleOwner =this
+
+        viewModel.apply {
+            str.observe(this@EditTextBindingActivity){
+                it.log()
+            }
+        }
+        
+    }
+
+    class EditViewModel:ViewModel(){
+        val str=MutableLiveData("")
+    }
+}
+```
+
+重点是 ` binding.lifecycleOwner =this`，一定要给BindingBinding设置lifecycleOwner。否则就只能监听livedata的变化，无法同步到其他控件上。
+
+
+
+
+
+
+
+
+
